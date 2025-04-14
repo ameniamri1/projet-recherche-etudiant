@@ -6,39 +6,97 @@ import TopicsList from "@/components/topics/TopicsList";
 import ApplicationsList from "@/components/applications/ApplicationsList";
 import CreateTopicDialog from "@/components/topics/CreateTopicDialog";
 import { mockedTopics, mockedApplications } from "@/data/mockedData";
+import { LayoutDashboard, Plus, Users, BookOpen, CheckSquare } from "lucide-react";
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
 
 const TeacherDashboardPage = () => {
   const [isCreateTopicOpen, setIsCreateTopicOpen] = useState(false);
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Teacher Dashboard</h1>
-          <Button onClick={() => setIsCreateTopicOpen(true)}>Create New Topic</Button>
-        </div>
+  const dashboardStats = [
+    { label: "Active Topics", value: mockedTopics.length, icon: BookOpen, color: "bg-blue-500" },
+    { label: "Pending Applications", value: mockedApplications.length, icon: CheckSquare, color: "bg-amber-500" },
+    { label: "Accepted Students", value: 0, icon: Users, color: "bg-green-500" }
+  ];
 
-        <Tabs defaultValue="topics" className="w-full">
-          <TabsList className="mb-6">
-            <TabsTrigger value="topics">My Topics</TabsTrigger>
-            <TabsTrigger value="applications">Applications</TabsTrigger>
-            <TabsTrigger value="students">Accepted Students</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="topics">
-            <TopicsList topics={mockedTopics} isTeacherView={true} />
-          </TabsContent>
-          
-          <TabsContent value="applications">
-            <ApplicationsList applications={mockedApplications} />
-          </TabsContent>
-          
-          <TabsContent value="students">
-            <div className="p-8 text-center text-gray-500">
-              <p>Currently no accepted students</p>
-            </div>
-          </TabsContent>
-        </Tabs>
+  return (
+    <div className="min-h-screen">
+      <div className="container mx-auto px-4 py-8">
+        <motion.div 
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="flex items-center gap-3">
+            <LayoutDashboard className="h-6 w-6 text-indigo-600" />
+            <h1 className="text-3xl font-bold text-indigo-800">Teacher Dashboard</h1>
+          </div>
+          <Button 
+            onClick={() => setIsCreateTopicOpen(true)} 
+            className="bg-indigo-600 hover:bg-indigo-700"
+          >
+            <Plus className="h-4 w-4 mr-2" /> Create New Topic
+          </Button>
+        </motion.div>
+
+        {/* Dashboard Stats */}
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          {dashboardStats.map((stat, index) => (
+            <Card key={stat.label} className="bg-white border-none shadow-md overflow-hidden">
+              <div className="flex items-center p-5">
+                <div className={`${stat.color} p-3 rounded-lg mr-4`}>
+                  <stat.icon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 font-medium">{stat.label}</p>
+                  <p className="text-2xl font-bold">{stat.value}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <Tabs defaultValue="topics" className="w-full">
+            <TabsList className="mb-6 bg-white border border-gray-200 p-1 shadow-sm">
+              <TabsTrigger value="topics" className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
+                <BookOpen className="h-4 w-4 mr-2" /> My Topics
+              </TabsTrigger>
+              <TabsTrigger value="applications" className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
+                <CheckSquare className="h-4 w-4 mr-2" /> Applications
+              </TabsTrigger>
+              <TabsTrigger value="students" className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
+                <Users className="h-4 w-4 mr-2" /> Accepted Students
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="topics" className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+              <TopicsList topics={mockedTopics} isTeacherView={true} />
+            </TabsContent>
+            
+            <TabsContent value="applications" className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+              <ApplicationsList applications={mockedApplications} />
+            </TabsContent>
+            
+            <TabsContent value="students" className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+              <div className="p-8 text-center text-gray-500">
+                <Users className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                <p className="text-lg font-medium">Currently no accepted students</p>
+                <p className="text-sm">Students you accept will appear here</p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
 
         <CreateTopicDialog isOpen={isCreateTopicOpen} setIsOpen={setIsCreateTopicOpen} />
       </div>
