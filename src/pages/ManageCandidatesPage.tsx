@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, CheckCircle2, XCircle, MessageCircle, SendHorizontal, User, UserCheck, Clock } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, MessageCircle, SendHorizontal, User, UserCheck, Clock, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { mockedTopics, mockedApplications } from "@/data/mockedData";
 import { Topic, Application } from "@/types/types";

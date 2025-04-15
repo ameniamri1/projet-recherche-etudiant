@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Mail, KeyReset } from "lucide-react";
+import { Mail, Key } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const ForgotPasswordPage = () => {
@@ -45,7 +45,7 @@ const ForgotPasswordPage = () => {
           <Card className="shadow-lg border-indigo-100">
             <CardHeader className="text-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-lg">
               <CardTitle className="text-2xl flex justify-center items-center gap-2">
-                <KeyReset className="h-6 w-6" />
+                <Key className="h-6 w-6" />
                 Reset Your Password
               </CardTitle>
               <CardDescription className="text-indigo-100">

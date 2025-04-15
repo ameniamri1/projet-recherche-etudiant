@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { ArrowLeft, ClipboardList, MessageCircle, BookOpen, FileText, BadgeCheck, Clock, Calendar, Stars, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { mockedTopics } from "@/data/mockedData";
