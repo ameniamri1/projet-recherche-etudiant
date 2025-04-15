@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { ArrowRight, GraduationCap, BookOpen, Users, Trophy, Globe } from "lucide-react";
+import { ArrowRight, GraduationCap, Users, BookOpen, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -8,12 +8,12 @@ import { Link } from "react-router-dom";
 const ENICarthageLanding = () => {
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {/* Section Hero */}
       <section className="relative h-[80vh] bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
         <div className="absolute inset-0 overflow-hidden">
           <img
             src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"
-            alt="ENICarthage Campus"
+            alt="Campus ENICarthage"
             className="w-full h-full object-cover opacity-20"
           />
         </div>
@@ -29,10 +29,10 @@ const ENICarthageLanding = () => {
               École Nationale d'Ingénieurs de Carthage
             </h1>
             <p className="text-xl md:text-2xl text-indigo-100 mb-8">
-              Former les ingénieurs de demain pour construire un avenir meilleur
+              Une institution d'excellence formant les ingénieurs de demain
             </p>
             <Button asChild size="lg" className="bg-white text-indigo-600 hover:bg-indigo-50">
-              <Link to="/topics" className="gap-2">
+              <Link to="/topics" className="inline-flex items-center gap-2">
                 Découvrir nos projets de recherche
                 <ArrowRight className="h-5 w-5" />
               </Link>
@@ -41,7 +41,7 @@ const ENICarthageLanding = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Section Statistiques */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -67,8 +67,8 @@ const ENICarthageLanding = () => {
               <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="h-8 w-8 text-indigo-600" />
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">200+</h3>
-              <p className="text-gray-600">Enseignants</p>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">150+</h3>
+              <p className="text-gray-600">Enseignants-chercheurs</p>
             </motion.div>
 
             <motion.div
@@ -78,10 +78,10 @@ const ENICarthageLanding = () => {
               className="text-center"
             >
               <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trophy className="h-8 w-8 text-indigo-600" />
+                <BookOpen className="h-8 w-8 text-indigo-600" />
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">50+</h3>
-              <p className="text-gray-600">Années d'Excellence</p>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">6</h3>
+              <p className="text-gray-600">Départements</p>
             </motion.div>
 
             <motion.div
@@ -93,14 +93,14 @@ const ENICarthageLanding = () => {
               <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Globe className="h-8 w-8 text-indigo-600" />
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">100+</h3>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">30+</h3>
               <p className="text-gray-600">Partenaires Internationaux</p>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* About Section */}
+      {/* Section À Propos */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -111,7 +111,7 @@ const ENICarthageLanding = () => {
             >
               <img
                 src="https://images.unsplash.com/photo-1519389950473-47ba0277781c"
-                alt="Étudiants travaillant ensemble"
+                alt="Étudiants de l'ENICarthage"
                 className="rounded-lg shadow-lg"
               />
             </motion.div>
@@ -126,13 +126,13 @@ const ENICarthageLanding = () => {
               </h2>
               <div className="space-y-4 text-gray-600">
                 <p>
-                  L'École Nationale d'Ingénieurs de Carthage (ENICarthage) est l'une des plus prestigieuses écoles d'ingénieurs en Tunisie. Depuis sa création, elle forme des ingénieurs de haut niveau dans divers domaines technologiques.
+                  Fondée en 2003, l'École Nationale d'Ingénieurs de Carthage (ENICarthage) est un établissement public d'enseignement supérieur tunisien qui forme des ingénieurs de haut niveau dans différents domaines technologiques.
                 </p>
                 <p>
-                  Notre mission est de former des ingénieurs polyvalents, créatifs et responsables, capables de relever les défis technologiques du futur tout en contribuant au développement durable de notre société.
+                  Située à Tunis, l'ENICarthage offre six filières de formation : Génie Informatique, Génie des Télécommunications, Génie Industriel, Génie Mécanique, Génie Civil et Génie Électrique.
                 </p>
                 <p>
-                  Avec des programmes d'études innovants et des partenariats internationaux, nous préparons nos étudiants à devenir les leaders de demain dans leur domaine.
+                  Notre mission est de former des ingénieurs polyvalents et innovants, capables de répondre aux défis technologiques actuels et futurs, tout en contribuant au développement économique et social de la Tunisie.
                 </p>
               </div>
             </motion.div>
@@ -140,7 +140,7 @@ const ENICarthageLanding = () => {
         </div>
       </section>
 
-      {/* Research Areas Section */}
+      {/* Section Domaines de Recherche */}
       <section className="py-16 bg-gradient-to-b from-indigo-50 to-white">
         <div className="container mx-auto px-4">
           <motion.div
@@ -153,7 +153,7 @@ const ENICarthageLanding = () => {
               Nos Domaines de Recherche
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Découvrez les différents domaines dans lesquels nos équipes de recherche excellent et innovent continuellement.
+              Découvrez les domaines d'excellence où nos équipes de recherche innovent et excellent.
             </p>
           </motion.div>
 
@@ -161,18 +161,15 @@ const ENICarthageLanding = () => {
             {[
               {
                 title: "Génie Informatique",
-                description: "Intelligence artificielle, sécurité informatique, développement logiciel et systèmes embarqués.",
-                icon: BookOpen
+                description: "Intelligence artificielle, cybersécurité, génie logiciel, systèmes embarqués et IoT."
               },
               {
-                title: "Génie Électrique",
-                description: "Systèmes électroniques, automatisation, robotique et systèmes de communication.",
-                icon: BookOpen
+                title: "Télécommunications",
+                description: "Réseaux 5G, systèmes de communication sans fil, traitement du signal et des images."
               },
               {
-                title: "Génie Mécanique",
-                description: "Conception mécanique, énergétique, matériaux et production industrielle.",
-                icon: BookOpen
+                title: "Génie Industriel",
+                description: "Industrie 4.0, optimisation des processus, gestion de la production et logistique."
               }
             ].map((domain, index) => (
               <motion.div
@@ -184,7 +181,7 @@ const ENICarthageLanding = () => {
                 <Card className="h-full">
                   <CardContent className="pt-6">
                     <div className="bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                      <domain.icon className="h-6 w-6 text-indigo-600" />
+                      <BookOpen className="h-6 w-6 text-indigo-600" />
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
                       {domain.title}
@@ -200,7 +197,7 @@ const ENICarthageLanding = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Section CTA */}
       <section className="py-16 bg-indigo-600 text-white">
         <div className="container mx-auto px-4 text-center">
           <motion.div
@@ -210,7 +207,7 @@ const ENICarthageLanding = () => {
             className="max-w-2xl mx-auto"
           >
             <h2 className="text-3xl font-bold mb-6">
-              Prêt à Commencer Votre Projet de Recherche?
+              Prêt à Commencer Votre Projet de Recherche ?
             </h2>
             <p className="text-indigo-100 mb-8">
               Rejoignez notre plateforme pour découvrir les opportunités de recherche et collaborer avec nos professeurs.
