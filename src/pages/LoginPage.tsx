@@ -24,19 +24,18 @@ const LoginPage = () => {
     
     if (!email || !password) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs",
         variant: "destructive",
       });
       return;
     }
 
     toast({
-      title: "Success",
-      description: "You have successfully logged in!",
+      title: "Succès",
+      description: "Connexion réussie !",
     });
 
-    // Simulating login by redirecting to the dashboard based on user type
     setTimeout(() => {
       if (userType === "teacher") {
         navigate("/teacher-dashboard");
@@ -59,20 +58,20 @@ const LoginPage = () => {
             <CardHeader className="text-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-lg">
               <CardTitle className="text-2xl flex justify-center items-center gap-2">
                 <LockKeyhole className="h-6 w-6" />
-                Login to ResearchConnect
+                Connexion
               </CardTitle>
               <CardDescription className="text-indigo-100">
-                Enter your credentials to access your account
+                Entrez vos identifiants pour accéder à votre compte
               </CardDescription>
             </CardHeader>
             
             <Tabs defaultValue="student" onValueChange={setUserType} className="w-full">
               <TabsList className="grid grid-cols-2 gap-4 px-4 py-4">
                 <TabsTrigger value="student" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
-                  <UserCircle className="mr-2 h-4 w-4" /> Student
+                  <UserCircle className="mr-2 h-4 w-4" /> Étudiant
                 </TabsTrigger>
                 <TabsTrigger value="teacher" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
-                  <School className="mr-2 h-4 w-4" /> Teacher
+                  <School className="mr-2 h-4 w-4" /> Enseignant
                 </TabsTrigger>
               </TabsList>
               
@@ -85,7 +84,7 @@ const LoginPage = () => {
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
                           id="email"
-                          placeholder="your@email.com"
+                          placeholder="votre@email.com"
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
@@ -96,7 +95,7 @@ const LoginPage = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
+                      <Label htmlFor="password">Mot de passe</Label>
                       <div className="relative">
                         <LockKeyhole className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
@@ -118,16 +117,16 @@ const LoginPage = () => {
                           checked={rememberMe}
                           onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                         />
-                        <Label htmlFor="remember" className="text-sm text-gray-500">Remember me</Label>
+                        <Label htmlFor="remember" className="text-sm text-gray-500">Se souvenir de moi</Label>
                       </div>
                       
                       <Link to="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline">
-                        Forgot password?
+                        Mot de passe oublié ?
                       </Link>
                     </div>
                     
                     <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700">
-                      Login
+                      Se connecter
                     </Button>
                   </div>
                 </form>
@@ -136,9 +135,9 @@ const LoginPage = () => {
             
             <CardFooter className="flex flex-col space-y-4 pb-6 pt-2">
               <div className="text-center text-sm text-gray-500">
-                Don't have an account?{" "}
+                Vous n'avez pas de compte ?{" "}
                 <Link to="/register" className="text-indigo-600 hover:text-indigo-800 hover:underline">
-                  Register
+                  S'inscrire
                 </Link>
               </div>
             </CardFooter>
