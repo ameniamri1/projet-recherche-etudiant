@@ -32,12 +32,12 @@ const TopicsList = ({ topics, isTeacherView = false }: TopicsListProps) => {
             <p className="text-gray-600 mb-4 line-clamp-3">{topic.description}</p>
             <div className="flex items-center text-sm text-gray-500 mb-2">
               <Calendar className="mr-2 h-4 w-4" />
-              <span>Deadline: {new Date(topic.deadline).toLocaleDateString()}</span>
+              <span>Date limite: {new Date(topic.deadline).toLocaleDateString()}</span>
             </div>
             {topic.prerequisites && (
               <div className="flex items-center text-sm text-gray-500">
                 <User className="mr-2 h-4 w-4" />
-                <span>Prerequisites: {topic.prerequisites}</span>
+                <span>Prérequis: {topic.prerequisites}</span>
               </div>
             )}
           </CardContent>
@@ -45,22 +45,22 @@ const TopicsList = ({ topics, isTeacherView = false }: TopicsListProps) => {
           <CardFooter className="bg-gray-50 border-t border-gray-100 flex justify-between">
             {isTeacherView ? (
               <>
-                <Button variant="outline" size="sm">
-                  Edit
+                <Button variant="outline" size="sm" asChild>
+                  <Link to={`/edit-topic/${topic.id}`}>Modifier</Link>
                 </Button>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="secondary">{topic.applications || 0} applications</Badge>
+                  <Badge variant="secondary">{topic.applications || 0} candidatures</Badge>
                   <Button size="sm" asChild>
-                    <Link to={`/topic/${topic.id}`}>View Details</Link>
+                    <Link to={`/topic/${topic.id}`}>Voir détails</Link>
                   </Button>
                 </div>
               </>
             ) : (
               <>
                 <Button variant="outline" size="sm" asChild>
-                  <Link to={`/topic/${topic.id}`}>View Details</Link>
+                  <Link to={`/topic/${topic.id}`}>Voir détails</Link>
                 </Button>
-                <Button size="sm">Apply Now</Button>
+                <Button size="sm">Postuler</Button>
               </>
             )}
           </CardFooter>

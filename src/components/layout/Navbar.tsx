@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   NavigationMenu, 
   NavigationMenuContent, 
@@ -26,12 +26,13 @@ import {
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This would come from auth context in a real app
-  const [userRole, setUserRole] = useState<'student' | 'teacher' | null>(null); // This would come from auth context
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<'student' | 'teacher' | null>(null);
 
-  // Effect for detecting scroll to change navbar appearance
+  // Effet pour détecter le défilement pour changer l'apparence de la barre de navigation
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -41,9 +42,8 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // For demo purposes only
+  // Vérifier le chemin pour définir le rôle et l'état de connexion
   useEffect(() => {
-    // Check if path includes teacher to set teacher role
     if (location.pathname.includes('teacher')) {
       setUserRole('teacher');
       setIsLoggedIn(true);
@@ -54,6 +54,12 @@ const Navbar = () => {
   }, [location.pathname]);
 
   const isActive = (path: string) => location.pathname === path;
+  
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserRole(null);
+    navigate("/");
+  };
 
   return (
     <header className={cn(
@@ -66,14 +72,14 @@ const Navbar = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 font-bold text-xl text-indigo-700 hover:text-indigo-600 transition-colors">
           <GraduationCap className="h-6 w-6" />
-          <span className="hidden sm:inline">ResearchConnect</span>
+          <span className="hidden sm:inline">RecherchesConnect</span>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Navigation sur ordinateur */}
         <div className="hidden md:block">
           <NavigationMenu>
             <NavigationMenuList>
-              {/* Always visible links */}
+              {/* Liens toujours visibles */}
               <NavigationMenuItem>
                 <NavigationMenuLink 
                   asChild
@@ -84,12 +90,12 @@ const Navbar = () => {
                 >
                   <Link to="/topics" className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />
-                    Topics
+                    Sujets
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               
-              {/* Teacher specific links */}
+              {/* Liens spécifiques aux enseignants */}
               {userRole === 'teacher' && (
                 <>
                   <NavigationMenuItem>
@@ -102,7 +108,7 @@ const Navbar = () => {
                     >
                       <Link to="/teacher-dashboard" className="flex items-center gap-2">
                         <LayoutDashboard className="h-4 w-4" />
-                        Dashboard
+                        Tableau de bord
                       </Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
@@ -117,14 +123,14 @@ const Navbar = () => {
                     >
                       <Link to="/publish-topic" className="flex items-center gap-2">
                         <Upload className="h-4 w-4" />
-                        Publish Topic
+                        Publier un sujet
                       </Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 </>
               )}
 
-              {/* Student specific links */}
+              {/* Liens spécifiques aux étudiants */}
               {userRole === 'student' && (
                 <NavigationMenuItem>
                   <NavigationMenuLink 
@@ -136,13 +142,13 @@ const Navbar = () => {
                   >
                     <Link to="/student-dashboard" className="flex items-center gap-2">
                       <LayoutDashboard className="h-4 w-4" />
-                      Dashboard
+                      Tableau de bord
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               )}
               
-              {/* Logged in user links */}
+              {/* Liens utilisateur connecté */}
               {isLoggedIn && (
                 <>
                   <NavigationMenuItem>
@@ -180,7 +186,7 @@ const Navbar = () => {
           </NavigationMenu>
         </div>
 
-        {/* Login/Register buttons for desktop */}
+        {/* Boutons Connexion/Inscription pour ordinateur */}
         <div className="hidden md:flex items-center gap-3">
           {isLoggedIn ? (
             <>
@@ -192,26 +198,30 @@ const Navbar = () => {
               >
                 <Link to="/profile">
                   <User className="h-4 w-4" />
-                  Profile
+                  Profil
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link to="/">Logout</Link>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleLogout}
+              >
+                Déconnexion
               </Button>
             </>
           ) : (
             <>
               <Button asChild variant="outline" size="sm">
-                <Link to="/login">Login</Link>
+                <Link to="/login">Connexion</Link>
               </Button>
               <Button asChild size="sm" className="bg-indigo-600 hover:bg-indigo-700">
-                <Link to="/register">Register</Link>
+                <Link to="/register">Inscription</Link>
               </Button>
             </>
           )}
         </div>
 
-        {/* Mobile menu button */}
+        {/* Bouton menu mobile */}
         <Button 
           variant="ghost" 
           size="icon" 
@@ -222,7 +232,7 @@ const Navbar = () => {
         </Button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Menu mobile */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-900 shadow-lg py-4 px-6 border-t">
           <nav className="flex flex-col space-y-4">
@@ -237,7 +247,7 @@ const Navbar = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               <BookOpen className="h-5 w-5" />
-              Topics
+              Sujets
             </Link>
             
             {userRole === 'teacher' && (
@@ -253,7 +263,7 @@ const Navbar = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <LayoutDashboard className="h-5 w-5" />
-                  Dashboard
+                  Tableau de bord
                 </Link>
                 <Link 
                   to="/publish-topic" 
@@ -266,7 +276,7 @@ const Navbar = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Upload className="h-5 w-5" />
-                  Publish Topic
+                  Publier un sujet
                 </Link>
               </>
             )}
@@ -283,7 +293,7 @@ const Navbar = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <LayoutDashboard className="h-5 w-5" />
-                Dashboard
+                Tableau de bord
               </Link>
             )}
 
@@ -326,25 +336,27 @@ const Navbar = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <User className="h-5 w-5" />
-                  Profile
+                  Profil
                 </Link>
-                <Link 
-                  to="/" 
+                <button 
                   className="flex items-center gap-2 py-2 px-3 rounded-md transition-colors hover:bg-gray-100"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleLogout();
+                  }}
                 >
-                  Logout
-                </Link>
+                  Déconnexion
+                </button>
               </>
             )}
             
             {!isLoggedIn && (
               <div className="flex flex-col space-y-2 pt-2 border-t">
                 <Button asChild variant="outline" className="w-full">
-                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
+                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>Connexion</Link>
                 </Button>
                 <Button asChild className="w-full bg-indigo-600 hover:bg-indigo-700">
-                  <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>Register</Link>
+                  <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>Inscription</Link>
                 </Button>
               </div>
             )}

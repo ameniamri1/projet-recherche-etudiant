@@ -9,14 +9,15 @@ import { mockedTopics, mockedApplications } from "@/data/mockedData";
 import { LayoutDashboard, Plus, Users, BookOpen, CheckSquare } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 const TeacherDashboardPage = () => {
   const [isCreateTopicOpen, setIsCreateTopicOpen] = useState(false);
 
   const dashboardStats = [
-    { label: "Active Topics", value: mockedTopics.length, icon: BookOpen, color: "bg-blue-500" },
-    { label: "Pending Applications", value: mockedApplications.length, icon: CheckSquare, color: "bg-amber-500" },
-    { label: "Accepted Students", value: 0, icon: Users, color: "bg-green-500" }
+    { label: "Sujets Actifs", value: mockedTopics.length, icon: BookOpen, color: "bg-blue-500" },
+    { label: "Candidatures en attente", value: mockedApplications.length, icon: CheckSquare, color: "bg-amber-500" },
+    { label: "Étudiants acceptés", value: 0, icon: Users, color: "bg-green-500" }
   ];
 
   return (
@@ -30,17 +31,17 @@ const TeacherDashboardPage = () => {
         >
           <div className="flex items-center gap-3">
             <LayoutDashboard className="h-6 w-6 text-indigo-600" />
-            <h1 className="text-3xl font-bold text-indigo-800">Teacher Dashboard</h1>
+            <h1 className="text-3xl font-bold text-indigo-800">Tableau de bord Enseignant</h1>
           </div>
           <Button 
             onClick={() => setIsCreateTopicOpen(true)} 
             className="bg-indigo-600 hover:bg-indigo-700"
           >
-            <Plus className="h-4 w-4 mr-2" /> Create New Topic
+            <Plus className="h-4 w-4 mr-2" /> Créer un nouveau sujet
           </Button>
         </motion.div>
 
-        {/* Dashboard Stats */}
+        {/* Statistiques du tableau de bord */}
         <motion.div 
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
@@ -70,13 +71,13 @@ const TeacherDashboardPage = () => {
           <Tabs defaultValue="topics" className="w-full">
             <TabsList className="mb-6 bg-white border border-gray-200 p-1 shadow-sm">
               <TabsTrigger value="topics" className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-                <BookOpen className="h-4 w-4 mr-2" /> My Topics
+                <BookOpen className="h-4 w-4 mr-2" /> Mes Sujets
               </TabsTrigger>
               <TabsTrigger value="applications" className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-                <CheckSquare className="h-4 w-4 mr-2" /> Applications
+                <CheckSquare className="h-4 w-4 mr-2" /> Candidatures
               </TabsTrigger>
               <TabsTrigger value="students" className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-                <Users className="h-4 w-4 mr-2" /> Accepted Students
+                <Users className="h-4 w-4 mr-2" /> Étudiants acceptés
               </TabsTrigger>
             </TabsList>
             
@@ -91,8 +92,8 @@ const TeacherDashboardPage = () => {
             <TabsContent value="students" className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
               <div className="p-8 text-center text-gray-500">
                 <Users className="h-12 w-12 text-gray-300 mx-auto mb-2" />
-                <p className="text-lg font-medium">Currently no accepted students</p>
-                <p className="text-sm">Students you accept will appear here</p>
+                <p className="text-lg font-medium">Aucun étudiant accepté pour l'instant</p>
+                <p className="text-sm">Les étudiants que vous acceptez apparaîtront ici</p>
               </div>
             </TabsContent>
           </Tabs>
