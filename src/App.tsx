@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
 // Pages
+import ENICarthageLanding from "./pages/ENICarthageLanding";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import TopicsPage from "./pages/TopicsPage";
@@ -26,14 +26,13 @@ import ProgressTrackingPage from "./pages/ProgressTrackingPage";
 
 const queryClient = new QueryClient();
 
-// Wrapper component to handle the AnimatePresence
 const AnimatedRoutes = () => {
   const location = useLocation();
   
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Index />} />
+        <Route path="/" element={<ENICarthageLanding />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
