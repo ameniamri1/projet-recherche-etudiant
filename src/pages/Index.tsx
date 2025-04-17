@@ -30,7 +30,11 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <GraduationCap className="h-16 w-16 text-indigo-600 mx-auto mb-4" />
+          <img 
+            src="/lovable-uploads/photo-1487958449943-2429e8be8625.jpg" 
+            alt="ENICarthage Logo" 
+            className="h-32 w-auto mx-auto mb-4 rounded-lg shadow-md"
+          />
           <h1 className="text-4xl md:text-5xl font-bold text-indigo-800 mb-4 leading-tight">
             Research Project Platform
           </h1>
