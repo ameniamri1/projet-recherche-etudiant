@@ -24,6 +24,7 @@ import MessagesPage from "./pages/MessagesPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProgressTrackingPage from "./pages/ProgressTrackingPage";
+import EditTopicPage from "./pages/EditTopicPage";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const AnimatedRoutes = () => {
         <Route path="/teacher-dashboard" element={<TeacherDashboardPage />} />
         <Route path="/student-dashboard" element={<StudentDashboardPage />} />
         <Route path="/publish-topic" element={<PublishTopicPage />} />
+        <Route path="/edit-topic/:id" element={<EditTopicPage />} />
         <Route path="/manage-candidates/:topicId" element={<ManageCandidatesPage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
