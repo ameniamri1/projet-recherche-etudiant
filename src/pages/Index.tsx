@@ -31,7 +31,7 @@ const Index = () => {
           transition={{ duration: 0.5 }}
         >
           <img 
-            src="/lovable-uploads/photo-1487958449943-2429e8be8625.jpg" 
+            src="/lovable-uploads/efea860e-c9f6-4e82-90e8-50e424e58803.png" 
             alt="ENICarthage Logo" 
             className="h-32 w-auto mx-auto mb-4 rounded-lg shadow-md"
           />
