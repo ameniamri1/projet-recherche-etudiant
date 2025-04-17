@@ -34,7 +34,7 @@ const EditTopicPage = () => {
   useEffect(() => {
     setIsLoading(true);
     
-    // Simuler le chargement des données
+    // Simuler le chargement des données - correction de la comparaison de types
     const topicData = mockedTopics.find(topic => topic.id === Number(id));
     
     if (topicData) {
