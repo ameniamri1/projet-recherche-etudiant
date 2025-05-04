@@ -1,23 +1,47 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TopicsList from "@/components/topics/TopicsList";
 import ApplicationsList from "@/components/applications/ApplicationsList";
 import CreateTopicDialog from "@/components/topics/CreateTopicDialog";
-import { mockedTopics, mockedApplications } from "@/data/mockedData";
+import { getTopics, getApplications } from "@/utils/crudUtils";
 import { LayoutDashboard, Plus, Users, BookOpen, CheckSquare } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { Topic, Application } from "@/types/types";
 
 const TeacherDashboardPage = () => {
   const [isCreateTopicOpen, setIsCreateTopicOpen] = useState(false);
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [acceptedStudents, setAcceptedStudents] = useState<number>(0);
+
+  useEffect(() => {
+    // Load data from local storage
+    const loadedTopics = getTopics();
+    const loadedApplications = getApplications();
+    const accepted = loadedApplications.filter(app => app.status === "Accepted").length;
+    
+    setTopics(loadedTopics);
+    setApplications(loadedApplications);
+    setAcceptedStudents(accepted);
+  }, []);
+
+  // Refresh data when dialog closes (in case a new topic was added)
+  const handleDialogClose = (isOpen: boolean) => {
+    setIsCreateTopicOpen(isOpen);
+    if (!isOpen) {
+      setTopics(getTopics());
+      setApplications(getApplications());
+    }
+  };
 
   const dashboardStats = [
-    { label: "Sujets Actifs", value: mockedTopics.length, icon: BookOpen, color: "bg-blue-500" },
-    { label: "Candidatures en attente", value: mockedApplications.length, icon: CheckSquare, color: "bg-amber-500" },
-    { label: "Étudiants acceptés", value: 0, icon: Users, color: "bg-green-500" }
+    { label: "Sujets Actifs", value: topics.length, icon: BookOpen, color: "bg-blue-500" },
+    { label: "Candidatures en attente", value: applications.filter(a => a.status === "Pending").length, icon: CheckSquare, color: "bg-amber-500" },
+    { label: "Étudiants acceptés", value: acceptedStudents, icon: Users, color: "bg-green-500" }
   ];
 
   return (
@@ -82,24 +106,43 @@ const TeacherDashboardPage = () => {
             </TabsList>
             
             <TabsContent value="topics" className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
-              <TopicsList topics={mockedTopics} isTeacherView={true} />
+              <TopicsList topics={topics} isTeacherView={true} />
             </TabsContent>
             
             <TabsContent value="applications" className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
-              <ApplicationsList applications={mockedApplications} />
+              <ApplicationsList applications={applications} />
             </TabsContent>
             
             <TabsContent value="students" className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
-              <div className="p-8 text-center text-gray-500">
-                <Users className="h-12 w-12 text-gray-300 mx-auto mb-2" />
-                <p className="text-lg font-medium">Aucun étudiant accepté pour l'instant</p>
-                <p className="text-sm">Les étudiants que vous acceptez apparaîtront ici</p>
-              </div>
+              {acceptedStudents > 0 ? (
+                <div className="grid gap-4">
+                  {applications
+                    .filter(app => app.status === "Accepted")
+                    .map(app => (
+                      <div key={app.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg">
+                        <div>
+                          <h3 className="font-medium">{app.studentName}</h3>
+                          <p className="text-sm text-gray-500">Sujet: {app.topicTitle}</p>
+                        </div>
+                        <Button variant="outline" asChild>
+                          <Link to={`/progress/${app.topicId}`}>Voir progression</Link>
+                        </Button>
+                      </div>
+                    ))
+                  }
+                </div>
+              ) : (
+                <div className="p-8 text-center text-gray-500">
+                  <Users className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                  <p className="text-lg font-medium">Aucun étudiant accepté pour l'instant</p>
+                  <p className="text-sm">Les étudiants que vous acceptez apparaîtront ici</p>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </motion.div>
 
-        <CreateTopicDialog isOpen={isCreateTopicOpen} setIsOpen={setIsCreateTopicOpen} />
+        <CreateTopicDialog isOpen={isCreateTopicOpen} setIsOpen={handleDialogClose} />
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarIcon, Upload, FileText, X, Info, CalendarCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { createTopic } from "@/utils/crudUtils";
 
 const PublishTopicPage = () => {
   const [title, setTitle] = useState("");
@@ -42,21 +43,41 @@ const PublishTopicPage = () => {
     
     if (!title || !description || !category || !contact || !date) {
       toast({
-        title: "Error",
-        description: "Please fill all required fields",
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs requis",
         variant: "destructive",
       });
       return;
     }
 
-    toast({
-      title: "Success",
-      description: "Your research topic has been published",
-    });
+    try {
+      // Create a new topic
+      createTopic({
+        title,
+        description,
+        teacherId: "t1", // In a real app, this would be the current user's ID
+        teacherName: "Dr. Sarah Johnson", // In a real app, this would be the current user's name
+        category,
+        prerequisites,
+        deadline: date.toISOString(),
+        contact,
+      });
 
-    setTimeout(() => {
-      navigate("/teacher-dashboard");
-    }, 1500);
+      toast({
+        title: "Succès",
+        description: "Votre sujet de recherche a été publié",
+      });
+
+      setTimeout(() => {
+        navigate("/teacher-dashboard");
+      }, 1500);
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la publication du sujet",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -70,9 +91,9 @@ const PublishTopicPage = () => {
         >
           <div className="flex items-center gap-3 mb-2">
             <Upload className="h-6 w-6 text-indigo-600" />
-            <h1 className="text-3xl font-bold text-indigo-800">Publish Research Topic</h1>
+            <h1 className="text-3xl font-bold text-indigo-800">Publier un Sujet de Recherche</h1>
           </div>
-          <p className="text-gray-600">Create a new research opportunity for students</p>
+          <p className="text-gray-600">Créer une nouvelle opportunité de recherche pour les étudiants</p>
         </motion.header>
 
         <motion.div
@@ -84,18 +105,18 @@ const PublishTopicPage = () => {
           <form onSubmit={handleSubmit}>
             <Card className="shadow-md">
               <CardHeader>
-                <CardTitle>Topic Details</CardTitle>
+                <CardTitle>Détails du Sujet</CardTitle>
                 <CardDescription>
-                  Fill in the information below to create a new research topic
+                  Remplissez les informations ci-dessous pour créer un nouveau sujet de recherche
                 </CardDescription>
               </CardHeader>
               
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Title <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="title">Titre <span className="text-red-500">*</span></Label>
                   <Input
                     id="title"
-                    placeholder="Enter a descriptive title for your research topic"
+                    placeholder="Entrez un titre descriptif pour votre sujet de recherche"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
@@ -105,7 +126,7 @@ const PublishTopicPage = () => {
                   <Label htmlFor="description">Description <span className="text-red-500">*</span></Label>
                   <Textarea
                     id="description"
-                    placeholder="Provide a detailed description of the research topic"
+                    placeholder="Fournissez une description détaillée du sujet de recherche"
                     rows={5}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -114,25 +135,25 @@ const PublishTopicPage = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="category">Category <span className="text-red-500">*</span></Label>
+                    <Label htmlFor="category">Catégorie <span className="text-red-500">*</span></Label>
                     <Select value={category} onValueChange={setCategory}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder="Sélectionnez une catégorie" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="computer-science">Computer Science</SelectItem>
-                        <SelectItem value="biology">Biology</SelectItem>
-                        <SelectItem value="psychology">Psychology</SelectItem>
-                        <SelectItem value="engineering">Engineering</SelectItem>
-                        <SelectItem value="mathematics">Mathematics</SelectItem>
-                        <SelectItem value="physics">Physics</SelectItem>
-                        <SelectItem value="chemistry">Chemistry</SelectItem>
+                        <SelectItem value="Computer Science">Informatique</SelectItem>
+                        <SelectItem value="Biology">Biologie</SelectItem>
+                        <SelectItem value="Psychology">Psychologie</SelectItem>
+                        <SelectItem value="Engineering">Ingénierie</SelectItem>
+                        <SelectItem value="Mathematics">Mathématiques</SelectItem>
+                        <SelectItem value="Physics">Physique</SelectItem>
+                        <SelectItem value="Chemistry">Chimie</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="deadline">Deadline <span className="text-red-500">*</span></Label>
+                    <Label htmlFor="deadline">Date limite <span className="text-red-500">*</span></Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -143,7 +164,7 @@ const PublishTopicPage = () => {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? format(date, "PPP") : <span>Pick a date</span>}
+                          {date ? format(date, "PPP") : <span>Choisir une date</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -160,10 +181,10 @@ const PublishTopicPage = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="prerequisites">Prerequisites</Label>
+                  <Label htmlFor="prerequisites">Prérequis</Label>
                   <Textarea
                     id="prerequisites"
-                    placeholder="List any skills or knowledge students should have"
+                    placeholder="Énumérez les compétences ou connaissances que les étudiants devraient avoir"
                     rows={3}
                     value={prerequisites}
                     onChange={(e) => setPrerequisites(e.target.value)}
@@ -171,17 +192,17 @@ const PublishTopicPage = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="contact">Contact Information <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="contact">Informations de contact <span className="text-red-500">*</span></Label>
                   <Input
                     id="contact"
-                    placeholder="Email or other contact information"
+                    placeholder="Email ou autres informations de contact"
                     value={contact}
                     onChange={(e) => setContact(e.target.value)}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Resources & Documents (optional)</Label>
+                  <Label>Ressources et Documents (optionnel)</Label>
                   <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center">
                     <Input
                       id="files"
@@ -194,10 +215,10 @@ const PublishTopicPage = () => {
                       <div className="flex flex-col items-center">
                         <FileText className="h-10 w-10 text-gray-400 mb-2" />
                         <p className="text-gray-700 font-medium">
-                          Drop files here or <span className="text-indigo-600">browse</span>
+                          Déposez des fichiers ici ou <span className="text-indigo-600">parcourir</span>
                         </p>
                         <p className="text-sm text-gray-500 mt-1">
-                          Upload any supporting documents (PDF, DOCX, etc.)
+                          Téléchargez des documents justificatifs (PDF, DOCX, etc.)
                         </p>
                       </div>
                     </Label>
@@ -205,7 +226,7 @@ const PublishTopicPage = () => {
                     {selectedFiles.length > 0 && (
                       <div className="mt-4 border-t pt-4">
                         <h4 className="text-sm font-medium text-gray-700 mb-2">
-                          Uploaded Files ({selectedFiles.length})
+                          Fichiers téléchargés ({selectedFiles.length})
                         </h4>
                         <div className="space-y-2">
                           {selectedFiles.map((file, index) => (
@@ -235,8 +256,8 @@ const PublishTopicPage = () => {
                 <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
                   <Info className="h-5 w-5 text-blue-500 shrink-0" />
                   <p className="text-sm text-blue-600">
-                    All research topics must comply with university guidelines. 
-                    Students will be able to apply for your topic until the deadline.
+                    Tous les sujets de recherche doivent être conformes aux directives de l'université.
+                    Les étudiants pourront postuler à votre sujet jusqu'à la date limite.
                   </p>
                 </div>
               </CardContent>
@@ -247,14 +268,14 @@ const PublishTopicPage = () => {
                   variant="outline" 
                   onClick={() => navigate(-1)}
                 >
-                  Cancel
+                  Annuler
                 </Button>
                 <Button 
                   type="submit"
                   className="bg-indigo-600 hover:bg-indigo-700"
                 >
                   <CalendarCheck className="h-4 w-4 mr-2" /> 
-                  Publish Topic
+                  Publier le Sujet
                 </Button>
               </CardFooter>
             </Card>

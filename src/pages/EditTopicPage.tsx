@@ -14,7 +14,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarIcon, Edit2, FileText, X, Info, CalendarCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { mockedTopics } from "@/data/mockedData";
+import { getTopic, updateTopic } from "@/utils/crudUtils";
 import { fr } from "date-fns/locale";
 
 const EditTopicPage = () => {
@@ -30,12 +30,20 @@ const EditTopicPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Fix the comparison error by converting id to number
   useEffect(() => {
     setIsLoading(true);
     
-    // Convert id to number before comparing with topic.id
-    const topicData = mockedTopics.find(topic => topic.id === parseInt(id || "0"));
+    if (!id) {
+      toast({
+        title: "Erreur",
+        description: "ID de sujet manquant",
+        variant: "destructive",
+      });
+      navigate("/teacher-dashboard");
+      return;
+    }
+    
+    const topicData = getTopic(id);
     
     if (topicData) {
       setTitle(topicData.title);
@@ -70,7 +78,7 @@ const EditTopicPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!title || !description || !category || !contact || !date) {
+    if (!title || !description || !category || !contact || !date || !id) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs requis",
@@ -79,14 +87,36 @@ const EditTopicPage = () => {
       return;
     }
 
-    toast({
-      title: "Succès",
-      description: "Votre sujet de recherche a été mis à jour",
+    // Format the category for storage
+    const formattedCategory = category.split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+    const updatedTopic = updateTopic(id, {
+      title,
+      description,
+      category: formattedCategory,
+      prerequisites,
+      contact,
+      deadline: date.toISOString(),
     });
 
-    setTimeout(() => {
-      navigate("/teacher-dashboard");
-    }, 1500);
+    if (updatedTopic) {
+      toast({
+        title: "Succès",
+        description: "Votre sujet de recherche a été mis à jour",
+      });
+      
+      setTimeout(() => {
+        navigate("/teacher-dashboard");
+      }, 1500);
+    } else {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour du sujet",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {

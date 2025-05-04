@@ -31,3 +31,33 @@ export interface User {
   role: "student" | "teacher";
   createdAt: string;
 }
+
+export interface Discussion {
+  id: string;
+  topicId: string;
+  userId: string;
+  userName: string;
+  userRole: "student" | "teacher";
+  message: string;
+  createdAt: string;
+}
+
+export interface Resource {
+  id: string;
+  topicId: string;
+  name: string;
+  url: string;
+  type: string;
+  uploadedBy: string;
+  createdAt: string;
+}
+
+export interface Progress {
+  id: string;
+  topicId: string;
+  studentId: string;
+  status: "Not Started" | "In Progress" | "Completed";
+  completionPercentage: number;
+  notes?: string;
+  lastUpdated: string;
+}
