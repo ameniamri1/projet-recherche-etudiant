@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import TopicsList from "@/components/topics/TopicsList";
 import TopicsFilter from "@/components/topics/TopicsFilter";
 import { getTopics } from "@/utils/crudUtils";
-import { Search, Filter, BookOpen } from "lucide-react";
+import { Search, Filter, BookOpen, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Topic } from "@/types/types";
 
@@ -17,12 +17,26 @@ const TopicsPage = () => {
   });
   const [topics, setTopics] = useState<Topic[]>([]);
   const [filteredTopics, setFilteredTopics] = useState<Topic[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load topics from local storage
   useEffect(() => {
-    const loadedTopics = getTopics();
-    setTopics(loadedTopics);
-    setFilteredTopics(loadedTopics);
+    const fetchTopics = async () => {
+      setIsLoading(true);
+      try {
+        // Simulate network delay for a more realistic experience
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const loadedTopics = getTopics();
+        setTopics(loadedTopics);
+        setFilteredTopics(loadedTopics);
+      } catch (error) {
+        console.error("Erreur lors du chargement des sujets:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchTopics();
   }, []);
 
   // Apply filters and search
@@ -67,7 +81,8 @@ const TopicsPage = () => {
       result = result.filter(topic => 
         topic.title.toLowerCase().includes(query) || 
         topic.description.toLowerCase().includes(query) ||
-        topic.category.toLowerCase().includes(query)
+        topic.category.toLowerCase().includes(query) ||
+        topic.teacherName.toLowerCase().includes(query)
       );
     }
     
@@ -135,8 +150,15 @@ const TopicsPage = () => {
               </form>
             </div>
 
-            {/* Topics list */}
-            {filteredTopics.length > 0 ? (
+            {/* Topics list with loading state */}
+            {isLoading ? (
+              <div className="flex items-center justify-center h-64 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                <div className="flex flex-col items-center">
+                  <Loader2 className="h-8 w-8 text-indigo-600 animate-spin mb-2" />
+                  <p className="text-gray-500">Chargement des sujets...</p>
+                </div>
+              </div>
+            ) : filteredTopics.length > 0 ? (
               <TopicsList topics={filteredTopics} />
             ) : (
               <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center">
