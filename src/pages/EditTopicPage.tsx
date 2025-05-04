@@ -30,12 +30,12 @@ const EditTopicPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Charger les données du sujet
+  // Fix the comparison error by converting id to number
   useEffect(() => {
     setIsLoading(true);
     
-    // Simuler le chargement des données - correction de la comparaison de types
-    const topicData = mockedTopics.find(topic => topic.id === Number(id));
+    // Convert id to number before comparing with topic.id
+    const topicData = mockedTopics.find(topic => topic.id === parseInt(id || "0"));
     
     if (topicData) {
       setTitle(topicData.title);
