@@ -6,9 +6,10 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Topic } from "@/types/types";
 import { Calendar, User, Trash2, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
-import { deleteTopic } from "@/utils/crudUtils";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { TopicService } from "@/services";
+import { useState } from "react";
 
 interface TopicsListProps {
   topics: Topic[];
@@ -18,25 +19,38 @@ interface TopicsListProps {
 
 const TopicsList = ({ topics, isTeacherView = false, onDelete }: TopicsListProps) => {
   const { toast } = useToast();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const handleDelete = (id: string) => {
-    const success = deleteTopic(id);
-    
-    if (success) {
-      toast({
-        title: "Sujet supprimé",
-        description: "Le sujet a été supprimé avec succès",
-      });
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      const success = await TopicService.deleteTopic(id);
       
-      if (onDelete) {
-        onDelete();
+      if (success) {
+        toast({
+          title: "Sujet supprimé",
+          description: "Le sujet a été supprimé avec succès",
+        });
+        
+        if (onDelete) {
+          onDelete();
+        }
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Une erreur est survenue lors de la suppression du sujet",
+          variant: "destructive",
+        });
       }
-    } else {
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la suppression du sujet",
         variant: "destructive",
       });
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -117,8 +131,25 @@ const TopicsList = ({ topics, isTeacherView = false, onDelete }: TopicsListProps
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600">
-                          <Trash2 className="h-4 w-4 mr-1" /> Supprimer
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
+                          disabled={deletingId === topic.id}
+                        >
+                          {deletingId === topic.id ? (
+                            <span className="flex items-center">
+                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Suppression...
+                            </span>
+                          ) : (
+                            <>
+                              <Trash2 className="h-4 w-4 mr-1" /> Supprimer
+                            </>
+                          )}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -130,7 +161,11 @@ const TopicsList = ({ topics, isTeacherView = false, onDelete }: TopicsListProps
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Annuler</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(topic.id)} className="bg-red-600 hover:bg-red-700">
+                          <AlertDialogAction 
+                            onClick={() => handleDelete(topic.id)} 
+                            className="bg-red-600 hover:bg-red-700"
+                            disabled={deletingId === topic.id}
+                          >
                             Supprimer
                           </AlertDialogAction>
                         </AlertDialogFooter>
