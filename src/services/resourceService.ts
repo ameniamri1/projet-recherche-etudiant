@@ -74,10 +74,8 @@ export const ResourceService = {
   // Télécharger une ressource
   downloadResource: async (id: string): Promise<Blob> => {
     try {
-      const response = await apiClient.get(`${API_CONFIG.ENDPOINTS.RESOURCES}/${id}/download`, {
-        responseType: 'blob'
-      });
-      return response.data;
+      const response = await ApiService.getWithBlob(`${API_CONFIG.ENDPOINTS.RESOURCES}/${id}/download`);
+      return response;
     } catch (error) {
       console.error(`Failed to download resource with id ${id}:`, error);
       throw error;

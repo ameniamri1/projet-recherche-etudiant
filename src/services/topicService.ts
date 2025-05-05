@@ -13,10 +13,7 @@ export const TopicService = {
       console.error('Failed to fetch topics:', error);
       // Fallback aux données mockées en mode développement
       if (import.meta.env.MODE === 'development') {
-        // Initialiser le localStorage si nécessaire
-        const { initializeLocalStorage } = await import('@/utils/crudUtils');
-        initializeLocalStorage();
-        
+        // Récupérer les données du localStorage
         const localTopics = localStorage.getItem('enicarthage_topics');
         return localTopics ? JSON.parse(localTopics) : [];
       }
