@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,7 +21,7 @@ const TeacherDashboardPage = () => {
     // Load data from local storage
     const loadedTopics = getTopics();
     const loadedApplications = getApplications();
-    const accepted = loadedApplications.filter(app => app.status === "Accepted").length;
+    const accepted = loadedApplications.filter(app => app.status === "ACCEPTED").length;
     
     setTopics(loadedTopics);
     setApplications(loadedApplications);
@@ -40,7 +39,7 @@ const TeacherDashboardPage = () => {
 
   const dashboardStats = [
     { label: "Sujets Actifs", value: topics.length, icon: BookOpen, color: "bg-blue-500" },
-    { label: "Candidatures en attente", value: applications.filter(a => a.status === "Pending").length, icon: CheckSquare, color: "bg-amber-500" },
+    { label: "Candidatures en attente", value: applications.filter(a => a.status === "PENDING").length, icon: CheckSquare, color: "bg-amber-500" },
     { label: "Étudiants acceptés", value: acceptedStudents, icon: Users, color: "bg-green-500" }
   ];
 
@@ -117,7 +116,7 @@ const TeacherDashboardPage = () => {
               {acceptedStudents > 0 ? (
                 <div className="grid gap-4">
                   {applications
-                    .filter(app => app.status === "Accepted")
+                    .filter(app => app.status === "ACCEPTED")
                     .map(app => (
                       <div key={app.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg">
                         <div>

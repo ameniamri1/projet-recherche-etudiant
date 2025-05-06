@@ -22,9 +22,9 @@ const ApplicationsList = ({ applications }: ApplicationsListProps) => {
               <Badge
                 className="ml-2"
                 variant={
-                  application.status === "Pending"
+                  application.status === "PENDING"
                     ? "outline"
-                    : application.status === "Accepted"
+                    : application.status === "ACCEPTED"
                     ? "default"
                     : "destructive"
                 }
@@ -38,7 +38,7 @@ const ApplicationsList = ({ applications }: ApplicationsListProps) => {
               <h4 className="text-sm font-semibold mb-2">Student Message:</h4>
               <p className="text-gray-700">{application.message}</p>
             </div>
-            {application.status === "Pending" && (
+            {application.status === "PENDING" && (
               <div className="flex space-x-2 justify-end">
                 <Button variant="outline" size="sm">
                   Request More Info
@@ -49,7 +49,7 @@ const ApplicationsList = ({ applications }: ApplicationsListProps) => {
                 <Button size="sm">Accept</Button>
               </div>
             )}
-            {application.status !== "Pending" && (
+            {application.status !== "PENDING" && (
               <div className="flex justify-end">
                 <Button variant="outline" size="sm">
                   Message Student

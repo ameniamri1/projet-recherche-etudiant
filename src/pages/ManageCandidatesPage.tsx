@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -71,7 +70,7 @@ const ManageCandidatesPage = () => {
     setApplications(prev => 
       prev.map(app => 
         app.id === applicationId 
-          ? { ...app, status: "Accepted" } 
+          ? { ...app, status: "ACCEPTED" as const } 
           : app
       )
     );
@@ -86,7 +85,7 @@ const ManageCandidatesPage = () => {
     setApplications(prev => 
       prev.map(app => 
         app.id === applicationId 
-          ? { ...app, status: "Declined" } 
+          ? { ...app, status: "DECLINED" as const } 
           : app
       )
     );
@@ -117,7 +116,7 @@ const ManageCandidatesPage = () => {
 
   const getFilteredApplications = () => {
     if (statusFilter === "all") return applications;
-    return applications.filter(app => app.status.toLowerCase() === statusFilter);
+    return applications.filter(app => app.status.toLowerCase() === statusFilter.toUpperCase());
   };
 
   const filteredApplications = getFilteredApplications();
@@ -200,7 +199,7 @@ const ManageCandidatesPage = () => {
                       <span className="text-sm text-gray-700">Accepted</span>
                     </div>
                     <span className="font-medium">
-                      {applications.filter(a => a.status === "Accepted").length}
+                      {applications.filter(a => a.status === "ACCEPTED").length}
                     </span>
                   </div>
                   
@@ -210,7 +209,7 @@ const ManageCandidatesPage = () => {
                       <span className="text-sm text-gray-700">Pending</span>
                     </div>
                     <span className="font-medium">
-                      {applications.filter(a => a.status === "Pending").length}
+                      {applications.filter(a => a.status === "PENDING").length}
                     </span>
                   </div>
                   
@@ -220,7 +219,7 @@ const ManageCandidatesPage = () => {
                       <span className="text-sm text-gray-700">Declined</span>
                     </div>
                     <span className="font-medium">
-                      {applications.filter(a => a.status === "Declined").length}
+                      {applications.filter(a => a.status === "DECLINED").length}
                     </span>
                   </div>
                 </div>
@@ -335,9 +334,9 @@ const ManageCandidatesPage = () => {
                                 <div className="mt-3">
                                   <Badge
                                     className={
-                                      application.status === "Accepted"
+                                      application.status === "ACCEPTED"
                                         ? "bg-green-100 text-green-800 hover:bg-green-200"
-                                        : application.status === "Pending"
+                                        : application.status === "PENDING"
                                         ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
                                         : "bg-red-100 text-red-800 hover:bg-red-200"
                                     }
@@ -358,7 +357,7 @@ const ManageCandidatesPage = () => {
                                 Applied on: {new Date(application.appliedAt).toLocaleDateString()}
                               </div>
                               
-                              {application.status === "Pending" && (
+                              {application.status === "PENDING" && (
                                 <div className="mt-4 flex flex-wrap gap-2 justify-end">
                                   <Button 
                                     variant="outline" 
@@ -389,7 +388,7 @@ const ManageCandidatesPage = () => {
                                 </div>
                               )}
                               
-                              {application.status !== "Pending" && (
+                              {application.status !== "PENDING" && (
                                 <div className="mt-4 flex justify-end">
                                   <Button 
                                     variant="outline" 

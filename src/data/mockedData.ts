@@ -13,7 +13,8 @@ export const mockedTopics: Topic[] = [
     deadline: "2025-06-30",
     contact: "s.johnson@university.edu",
     createdAt: "2025-04-01",
-    applications: 3
+    updatedAt: "2025-04-01",
+    applicationCount: 3
   },
   {
     id: "2",
@@ -26,7 +27,8 @@ export const mockedTopics: Topic[] = [
     deadline: "2025-07-15",
     contact: "m.chen@university.edu",
     createdAt: "2025-04-05",
-    applications: 1
+    updatedAt: "2025-04-05",
+    applicationCount: 1
   },
   {
     id: "3",
@@ -39,7 +41,8 @@ export const mockedTopics: Topic[] = [
     deadline: "2025-08-01",
     contact: "e.brooks@university.edu",
     createdAt: "2025-04-10",
-    applications: 2
+    updatedAt: "2025-04-10",
+    applicationCount: 2
   },
   {
     id: "4",
@@ -52,7 +55,8 @@ export const mockedTopics: Topic[] = [
     deadline: "2025-07-20",
     contact: "d.martinez@university.edu",
     createdAt: "2025-04-12",
-    applications: 0
+    updatedAt: "2025-04-12",
+    applicationCount: 0
   },
 ];
 
@@ -64,7 +68,7 @@ export const mockedApplications: Application[] = [
     studentId: "s1",
     studentName: "Alex Thompson",
     message: "I'm very interested in this topic as I have experience with Python and have completed several machine learning projects. I'm eager to apply my skills to medical image analysis and contribute to healthcare advancements.",
-    status: "Pending",
+    status: "PENDING",
     appliedAt: "2025-04-14"
   },
   {
@@ -74,7 +78,7 @@ export const mockedApplications: Application[] = [
     studentId: "s2",
     studentName: "Jamie Rodriguez",
     message: "I've been working on image recognition algorithms for the past year and am fascinated by the medical applications. I have experience with TensorFlow and PyTorch, which I believe will be valuable for this project.",
-    status: "Accepted",
+    status: "ACCEPTED",
     appliedAt: "2025-04-13"
   },
   {
@@ -84,7 +88,7 @@ export const mockedApplications: Application[] = [
     studentId: "s3",
     studentName: "Sam Wilson",
     message: "I'm passionate about environmental conservation and have been involved in several marine biology projects. I would love to contribute to this important research on climate change impacts.",
-    status: "Declined",
+    status: "DECLINED",
     appliedAt: "2025-04-12"
   }
 ];
@@ -94,28 +98,24 @@ export const mockedUsers: User[] = [
     id: "t1",
     name: "Dr. Sarah Johnson",
     email: "s.johnson@university.edu",
-    role: "teacher",
-    createdAt: "2025-01-15"
+    role: "ROLE_TEACHER"
   },
   {
     id: "t2",
     name: "Prof. Michael Chen",
     email: "m.chen@university.edu",
-    role: "teacher",
-    createdAt: "2025-01-20"
+    role: "ROLE_TEACHER"
   },
   {
     id: "s1",
     name: "Alex Thompson",
     email: "alex.t@university.edu",
-    role: "student",
-    createdAt: "2025-02-10"
+    role: "ROLE_STUDENT"
   },
   {
     id: "s2",
     name: "Jamie Rodriguez",
     email: "j.rodriguez@university.edu",
-    role: "student",
-    createdAt: "2025-02-15"
+    role: "ROLE_STUDENT"
   }
 ];

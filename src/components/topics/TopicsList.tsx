@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -175,7 +174,7 @@ const TopicsList = ({ topics, isTeacherView = false, onDelete }: TopicsListProps
                   <div className="flex items-center space-x-2">
                     <Badge variant="secondary" className="flex items-center">
                       <Clock className="h-3 w-3 mr-1" /> 
-                      {topic.applications || 0} candidatures
+                      {topic.applicationCount} candidatures
                     </Badge>
                     <Button size="sm" asChild>
                       <Link to={`/topic/${topic.id}`}>Voir détails</Link>

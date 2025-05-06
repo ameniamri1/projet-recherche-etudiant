@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -53,6 +52,8 @@ const CreateTopicDialog = ({ isOpen, setIsOpen }: CreateTopicDialogProps) => {
         prerequisites: formData.prerequisites,
         deadline: new Date(formData.deadline).toISOString(),
         contact: formData.contact,
+        updatedAt: new Date().toISOString(),
+        applicationCount: 0
       });
 
       toast({
