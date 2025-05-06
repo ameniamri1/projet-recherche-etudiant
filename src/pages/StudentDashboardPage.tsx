@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -7,15 +7,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, CheckCheck, Clock, User, Bell, MessageSquare } from "lucide-react";
-import { mockedTopics, mockedApplications } from "@/data/mockedData";
+import { Application } from "@/types/types";
+import { useToast } from "@/hooks/use-toast";
+import { ApplicationService, AuthService } from "@/services";
 
-// Mock data for student's applications
-const studentApplications = mockedApplications.map(app => ({
-  ...app,
-  topic: mockedTopics.find(topic => topic.id === app.topicId)
-}));
-
-// Mock notifications
+// Mock notifications - dans une vraie application, cela viendrait du backend
 const notifications = [
   {
     id: "1",
@@ -39,6 +35,33 @@ const notifications = [
 
 const StudentDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("applications");
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        // Dans une vraie application, nous obtiendrions l'ID de l'étudiant à partir du service d'authentification
+        const currentUser = await AuthService.getCurrentUser();
+        if (currentUser) {
+          const studentApplications = await ApplicationService.getApplicationsByStudent(currentUser.id);
+          setApplications(studentApplications);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des candidatures:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger vos candidatures",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, [toast]);
 
   return (
     <div className="min-h-screen">
@@ -75,7 +98,7 @@ const StudentDashboardPage = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500 font-medium">Applications</p>
-                <p className="text-2xl font-bold">{studentApplications.length}</p>
+                <p className="text-2xl font-bold">{applications.length}</p>
               </div>
             </div>
           </Card>
@@ -88,7 +111,7 @@ const StudentDashboardPage = () => {
               <div>
                 <p className="text-sm text-gray-500 font-medium">Accepted</p>
                 <p className="text-2xl font-bold">
-                  {studentApplications.filter(app => app.status === "Accepted").length}
+                  {applications.filter(app => app.status === "ACCEPTED").length}
                 </p>
               </div>
             </div>
@@ -102,7 +125,7 @@ const StudentDashboardPage = () => {
               <div>
                 <p className="text-sm text-gray-500 font-medium">Pending</p>
                 <p className="text-2xl font-bold">
-                  {studentApplications.filter(app => app.status === "Pending").length}
+                  {applications.filter(app => app.status === "PENDING").length}
                 </p>
               </div>
             </div>
@@ -157,7 +180,12 @@ const StudentDashboardPage = () => {
               className="bg-white rounded-lg shadow-sm border border-gray-100 p-5"
             >
               <div className="space-y-4">
-                {studentApplications.length === 0 ? (
+                {loading ? (
+                  <div className="text-center py-10">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mb-2"></div>
+                    <p className="text-gray-500">Chargement de vos candidatures...</p>
+                  </div>
+                ) : applications.length === 0 ? (
                   <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-lg">
                     <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-2" />
                     <h3 className="text-lg font-medium text-gray-700">No applications yet</h3>
@@ -167,7 +195,7 @@ const StudentDashboardPage = () => {
                     </Button>
                   </div>
                 ) : (
-                  studentApplications.map((application) => (
+                  applications.map((application) => (
                     <Card key={application.id} className="overflow-hidden">
                       <CardHeader className="bg-gray-50 border-b border-gray-100">
                         <div className="flex justify-between items-start">
@@ -181,9 +209,9 @@ const StudentDashboardPage = () => {
                           </div>
                           <Badge
                             className={
-                              application.status === "Accepted"
+                              application.status === "ACCEPTED"
                                 ? "bg-green-100 text-green-800 hover:bg-green-200"
-                                : application.status === "Pending"
+                                : application.status === "PENDING"
                                 ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
                                 : "bg-red-100 text-red-800 hover:bg-red-200"
                             }
@@ -198,6 +226,12 @@ const StudentDashboardPage = () => {
                           <h4 className="text-sm font-semibold text-gray-700">Your Message:</h4>
                           <p className="text-gray-600 text-sm">{application.message}</p>
                         </div>
+                        {application.teacherFeedback && (
+                          <div className="mt-4 pt-4 border-t border-gray-100">
+                            <h4 className="text-sm font-semibold text-gray-700">Teacher Feedback:</h4>
+                            <p className="text-gray-600 text-sm">{application.teacherFeedback}</p>
+                          </div>
+                        )}
                       </CardContent>
                       
                       <CardFooter className="flex justify-between bg-gray-50 border-t border-gray-100">
@@ -205,7 +239,7 @@ const StudentDashboardPage = () => {
                           <Link to={`/topic/${application.topicId}`}>View Topic</Link>
                         </Button>
                         
-                        {application.status === "Accepted" && (
+                        {application.status === "ACCEPTED" && (
                           <Button size="sm">
                             <MessageSquare className="h-4 w-4 mr-2" /> Contact Teacher
                           </Button>

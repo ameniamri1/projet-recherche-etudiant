@@ -7,10 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { getTopic, createApplication, getCurrentUser } from "@/utils/crudUtils";
 import { Calendar, User, Mail, Clock, ArrowLeft, Send, MessageSquare, FileText } from "lucide-react";
 import { motion } from "framer-motion";
-import { Topic } from "@/types/types";
+import { Topic, ApplicationRequest } from "@/types/types";
+import { TopicService, ApplicationService, AuthService, DiscussionService, ResourceService } from "@/services";
 
 const TopicDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +19,7 @@ const TopicDetailPage = () => {
   const [topic, setTopic] = useState<Topic | null>(null);
   const [applicationMessage, setApplicationMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   useEffect(() => {
     setIsLoading(true);
@@ -33,21 +34,34 @@ const TopicDetailPage = () => {
       return;
     }
     
-    const topicData = getTopic(id);
-    if (topicData) {
-      setTopic(topicData);
-    } else {
-      toast({
-        title: "Erreur",
-        description: "Sujet non trouvé",
-        variant: "destructive",
-      });
-    }
+    const fetchTopic = async () => {
+      try {
+        const fetchedTopic = await TopicService.getTopic(id);
+        if (fetchedTopic) {
+          setTopic(fetchedTopic);
+        } else {
+          toast({
+            title: "Erreur",
+            description: "Sujet non trouvé",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement du sujet:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les détails du sujet",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
     
-    setIsLoading(false);
+    fetchTopic();
   }, [id, toast, navigate]);
   
-  const handleApply = () => {
+  const handleApply = async () => {
     if (!applicationMessage.trim()) {
       toast({
         title: "Erreur",
@@ -66,20 +80,16 @@ const TopicDetailPage = () => {
       return;
     }
     
-    // In a real app, we would get the current user
-    const currentUser = getCurrentUser() || {
-      id: "s1",
-      name: "Alex Thompson"
-    };
+    setIsSubmitting(true);
     
     try {
-      createApplication({
+      // Créer la candidature en utilisant l'API
+      const applicationRequest: ApplicationRequest = {
         topicId: id,
-        topicTitle: topic.title,
-        studentId: currentUser.id,
-        studentName: currentUser.name,
-        message: applicationMessage,
-      });
+        message: applicationMessage
+      };
+      
+      await ApplicationService.createApplication(applicationRequest);
       
       toast({
         title: "Candidature soumise",
@@ -88,24 +98,30 @@ const TopicDetailPage = () => {
       
       setApplicationMessage("");
       
-      // Reload the topic to update the applications count
-      const updatedTopic = getTopic(id);
+      // Recharger le sujet pour mettre à jour le nombre de candidatures
+      const updatedTopic = await TopicService.getTopic(id);
       if (updatedTopic) {
         setTopic(updatedTopic);
       }
     } catch (error) {
+      console.error("Erreur lors de la soumission de la candidature:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la soumission de votre candidature",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg">Chargement...</p>
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-3"></div>
+          <p className="text-lg text-gray-600">Chargement...</p>
+        </div>
       </div>
     );
   }
@@ -228,7 +244,7 @@ const TopicDetailPage = () => {
                 
                 <div className="flex items-center text-sm text-gray-600">
                   <User className="mr-2 h-4 w-4 text-indigo-500" />
-                  <span>Candidatures: {topic.applications || 0}</span>
+                  <span>Candidatures: {topic.applicationCount}</span>
                 </div>
                 
                 <div className="pt-4 border-t">
@@ -241,8 +257,21 @@ const TopicDetailPage = () => {
                     onChange={(e) => setApplicationMessage(e.target.value)}
                     className="mb-4 resize-none min-h-[120px]"
                   />
-                  <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={handleApply}>
-                    <Send className="h-4 w-4 mr-2" /> Soumettre la candidature
+                  <Button 
+                    className="w-full bg-indigo-600 hover:bg-indigo-700" 
+                    onClick={handleApply}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin mr-2 h-4 w-4 border-b-2 border-white rounded-full"></div>
+                        Envoi en cours...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4 mr-2" /> Soumettre la candidature
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>

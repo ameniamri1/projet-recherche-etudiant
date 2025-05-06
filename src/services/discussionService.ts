@@ -32,7 +32,14 @@ export const DiscussionService = {
       // Fallback aux données mockées en mode développement
       if (import.meta.env.MODE === 'development') {
         const { createDiscussion } = await import('@/utils/crudUtils');
-        return createDiscussion({...discussion, topicId});
+        // Dans la version réelle, userId, userName et userRole serait automatiquement ajoutés côté serveur
+        return createDiscussion({
+          topicId,
+          message: discussion.message,
+          userId: "current-user-id", 
+          userName: "Current User", 
+          userRole: "ROLE_STUDENT"
+        } as any);
       }
       throw error;
     }

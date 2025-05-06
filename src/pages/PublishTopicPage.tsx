@@ -1,286 +1,214 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Calendar as CalendarIcon, Upload, FileText, X, Info, CalendarCheck } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { createTopic } from "@/utils/crudUtils";
+import { TopicRequest, User } from "@/types/types";
+import { TopicService, AuthService } from "@/services";
 
 const PublishTopicPage = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [prerequisites, setPrerequisites] = useState("");
+  const [date, setDate] = useState<Date | undefined>(
+    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Default: 30 days from now
+  );
   const [contact, setContact] = useState("");
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const filesArray = Array.from(e.target.files);
-      setSelectedFiles(prev => [...prev, ...filesArray]);
-    }
-  };
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const userData = await AuthService.getCurrentUser();
+        setCurrentUser(userData);
+        setContact(userData.email || "");
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      }
+    };
+    
+    fetchCurrentUser();
+  }, []);
 
-  const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!title || !description || !category || !contact || !date) {
+    if (!title || !description || !date) {
       toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs requis",
-        variant: "destructive",
+        title: "Champs requis",
+        description: "Veuillez remplir tous les champs obligatoires",
+        variant: "destructive"
       });
       return;
     }
-
+    
+    setIsSubmitting(true);
+    
     try {
-      // Create a new topic
-      createTopic({
+      const newTopic: TopicRequest = {
         title,
         description,
-        teacherId: "t1", // In a real app, this would be the current user's ID
-        teacherName: "Dr. Sarah Johnson", // In a real app, this would be the current user's name
-        category,
-        prerequisites,
-        deadline: date.toISOString(),
-        contact,
-      });
-
+        category: category || undefined,
+        prerequisites: prerequisites || undefined, 
+        deadline: format(date, 'yyyy-MM-dd'),
+        contact: contact || undefined
+      };
+      
+      await TopicService.createTopic(newTopic);
+      
       toast({
-        title: "Succès",
-        description: "Votre sujet de recherche a été publié",
+        title: "Sujet publié",
+        description: "Votre sujet de recherche a été publié avec succès"
       });
-
-      setTimeout(() => {
-        navigate("/teacher-dashboard");
-      }, 1500);
+      
+      navigate("/teacher-dashboard");
     } catch (error) {
+      console.error("Error creating topic:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la publication du sujet",
-        variant: "destructive",
+        variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        <motion.header 
-          className="mb-8"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <Upload className="h-6 w-6 text-indigo-600" />
-            <h1 className="text-3xl font-bold text-indigo-800">Publier un Sujet de Recherche</h1>
-          </div>
-          <p className="text-gray-600">Créer une nouvelle opportunité de recherche pour les étudiants</p>
-        </motion.header>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="max-w-3xl mx-auto"
-        >
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8 text-indigo-800">Publier un nouveau sujet de recherche</h1>
+        
+        <Card>
           <form onSubmit={handleSubmit}>
-            <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle>Détails du Sujet</CardTitle>
-                <CardDescription>
-                  Remplissez les informations ci-dessous pour créer un nouveau sujet de recherche
-                </CardDescription>
-              </CardHeader>
+            <CardHeader>
+              <CardTitle>Détails du sujet</CardTitle>
+            </CardHeader>
+            
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="title">Titre*</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Titre du sujet de recherche"
+                  required
+                />
+              </div>
               
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Titre <span className="text-red-500">*</span></Label>
-                  <Input
-                    id="title"
-                    placeholder="Entrez un titre descriptif pour votre sujet de recherche"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description <span className="text-red-500">*</span></Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Fournissez une description détaillée du sujet de recherche"
-                    rows={5}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Catégorie <span className="text-red-500">*</span></Label>
-                    <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez une catégorie" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Computer Science">Informatique</SelectItem>
-                        <SelectItem value="Biology">Biologie</SelectItem>
-                        <SelectItem value="Psychology">Psychologie</SelectItem>
-                        <SelectItem value="Engineering">Ingénierie</SelectItem>
-                        <SelectItem value="Mathematics">Mathématiques</SelectItem>
-                        <SelectItem value="Physics">Physique</SelectItem>
-                        <SelectItem value="Chemistry">Chimie</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="deadline">Date limite <span className="text-red-500">*</span></Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full text-left font-normal justify-start",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? format(date, "PPP") : <span>Choisir une date</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          initialFocus
-                          disabled={(date) => date < new Date()}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="prerequisites">Prérequis</Label>
-                  <Textarea
-                    id="prerequisites"
-                    placeholder="Énumérez les compétences ou connaissances que les étudiants devraient avoir"
-                    rows={3}
-                    value={prerequisites}
-                    onChange={(e) => setPrerequisites(e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="contact">Informations de contact <span className="text-red-500">*</span></Label>
-                  <Input
-                    id="contact"
-                    placeholder="Email ou autres informations de contact"
-                    value={contact}
-                    onChange={(e) => setContact(e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label>Ressources et Documents (optionnel)</Label>
-                  <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center">
-                    <Input
-                      id="files"
-                      type="file"
-                      multiple
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                    <Label htmlFor="files" className="cursor-pointer">
-                      <div className="flex flex-col items-center">
-                        <FileText className="h-10 w-10 text-gray-400 mb-2" />
-                        <p className="text-gray-700 font-medium">
-                          Déposez des fichiers ici ou <span className="text-indigo-600">parcourir</span>
-                        </p>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Téléchargez des documents justificatifs (PDF, DOCX, etc.)
-                        </p>
-                      </div>
-                    </Label>
-                    
-                    {selectedFiles.length > 0 && (
-                      <div className="mt-4 border-t pt-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">
-                          Fichiers téléchargés ({selectedFiles.length})
-                        </h4>
-                        <div className="space-y-2">
-                          {selectedFiles.map((file, index) => (
-                            <div 
-                              key={index}
-                              className="flex items-center justify-between bg-gray-50 rounded p-2 text-sm"
-                            >
-                              <div className="flex items-center">
-                                <FileText className="h-4 w-4 text-gray-400 mr-2" />
-                                <span className="text-gray-700">{file.name}</span>
-                              </div>
-                              <button 
-                                type="button"
-                                onClick={() => removeFile(index)}
-                                className="text-gray-500 hover:text-red-500"
-                              >
-                                <X className="h-4 w-4" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
-                  <Info className="h-5 w-5 text-blue-500 shrink-0" />
-                  <p className="text-sm text-blue-600">
-                    Tous les sujets de recherche doivent être conformes aux directives de l'université.
-                    Les étudiants pourront postuler à votre sujet jusqu'à la date limite.
-                  </p>
-                </div>
-              </CardContent>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description*</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Décrivez le sujet, ses objectifs et les résultats attendus"
+                  className="min-h-[150px]"
+                  required
+                />
+              </div>
               
-              <CardFooter className="flex justify-end gap-3 pt-6">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => navigate(-1)}
-                >
-                  Annuler
-                </Button>
-                <Button 
-                  type="submit"
-                  className="bg-indigo-600 hover:bg-indigo-700"
-                >
-                  <CalendarCheck className="h-4 w-4 mr-2" /> 
-                  Publier le Sujet
-                </Button>
-              </CardFooter>
-            </Card>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="category">Catégorie</Label>
+                  <Input
+                    id="category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    placeholder="Ex: Computer Science, Biology, etc."
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="deadline">Date limite*</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date ? format(date, "d MMMM yyyy") : "Sélectionner une date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        initialFocus
+                        disabled={(date) => date < new Date()}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="prerequisites">Prérequis</Label>
+                <Textarea
+                  id="prerequisites"
+                  value={prerequisites}
+                  onChange={(e) => setPrerequisites(e.target.value)}
+                  placeholder="Quelles connaissances ou compétences sont nécessaires ?"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="contact">Contact</Label>
+                <Input
+                  id="contact"
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                  placeholder="Email ou autre contact"
+                />
+              </div>
+            </CardContent>
+            
+            <CardFooter className="flex justify-between">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => navigate("/teacher-dashboard")}
+                disabled={isSubmitting}
+              >
+                Annuler
+              </Button>
+              <Button 
+                type="submit" 
+                className="bg-indigo-600 hover:bg-indigo-700"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Publication en cours...
+                  </span>
+                ) : "Publier le sujet"}
+              </Button>
+            </CardFooter>
           </form>
-        </motion.div>
+        </Card>
       </div>
     </div>
   );

@@ -2,292 +2,247 @@
 import { Topic, Application, User, Discussion, Resource, Progress } from "@/types/types";
 import { mockedTopics, mockedApplications, mockedUsers } from "@/data/mockedData";
 
-// Local storage keys
-const STORAGE_KEYS = {
-  TOPICS: "enicarthage_topics",
-  APPLICATIONS: "enicarthage_applications",
-  USERS: "enicarthage_users",
-  DISCUSSIONS: "enicarthage_discussions",
-  RESOURCES: "enicarthage_resources",
-  PROGRESS: "enicarthage_progress",
-  CURRENT_USER: "currentUserId"
-};
+// Fonctions pour simuler des opérations CRUD en mode développement
 
-// Generic storage handler
-const storage = {
-  get: <T>(key: string): T[] => {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
-  },
-  set: <T>(key: string, data: T[]): void => {
-    localStorage.setItem(key, JSON.stringify(data));
-  },
-  getItem: <T>(key: string, id: string, idField: string = 'id'): T | undefined => {
-    const items = storage.get<T>(key);
-    return (items as any[]).find(item => item[idField] === id);
-  },
-  createItem: <T>(key: string, item: any, idField: string = 'id'): T => {
-    const items = storage.get<T>(key);
-    const newId = ((items as any[]).length + 1).toString();
-    const timestamp = new Date().toISOString();
-    
-    const newItem = {
-      ...item,
-      [idField]: newId,
-      createdAt: timestamp
-    };
-    
-    (items as any[]).push(newItem);
-    storage.set(key, items);
-    return newItem as T;
-  },
-  updateItem: <T>(key: string, id: string, updates: Partial<T>, idField: string = 'id'): T | undefined => {
-    const items = storage.get<T>(key);
-    const index = (items as any[]).findIndex(item => item[idField] === id);
-    
-    if (index !== -1) {
-      (items as any[])[index] = { ...(items as any[])[index], ...updates };
-      storage.set(key, items);
-      return (items as any[])[index];
-    }
-    
-    return undefined;
-  },
-  deleteItem: <T>(key: string, id: string, idField: string = 'id'): boolean => {
-    const items = storage.get<T>(key);
-    const filteredItems = (items as any[]).filter(item => item[idField] !== id);
-    
-    if (filteredItems.length < items.length) {
-      storage.set(key, filteredItems);
-      return true;
-    }
-    
-    return false;
-  },
-  filter: <T>(key: string, filterFn: (item: T) => boolean): T[] => {
-    const items = storage.get<T>(key);
-    return (items as any[]).filter(filterFn);
-  }
-};
-
-// Initialize local storage with mocked data if empty
-const initializeLocalStorage = () => {
-  if (!localStorage.getItem(STORAGE_KEYS.TOPICS)) {
-    localStorage.setItem(STORAGE_KEYS.TOPICS, JSON.stringify(mockedTopics));
-  }
-  
-  if (!localStorage.getItem(STORAGE_KEYS.APPLICATIONS)) {
-    localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(mockedApplications));
-  }
-  
-  if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
-    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(mockedUsers));
-  }
-  
-  if (!localStorage.getItem(STORAGE_KEYS.DISCUSSIONS)) {
-    localStorage.setItem(STORAGE_KEYS.DISCUSSIONS, JSON.stringify([]));
-  }
-  
-  if (!localStorage.getItem(STORAGE_KEYS.RESOURCES)) {
-    localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify([]));
-  }
-  
-  if (!localStorage.getItem(STORAGE_KEYS.PROGRESS)) {
-    localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify([]));
-  }
-};
-
-// Topic CRUD Operations
+// Topics
 export const getTopics = (): Topic[] => {
-  initializeLocalStorage();
-  return storage.get<Topic>(STORAGE_KEYS.TOPICS);
+  const storedTopics = localStorage.getItem('enicarthage_topics');
+  return storedTopics ? JSON.parse(storedTopics) : mockedTopics;
 };
 
 export const getTopic = (id: string): Topic | undefined => {
-  initializeLocalStorage();
-  return storage.getItem<Topic>(STORAGE_KEYS.TOPICS, id);
+  const topics = getTopics();
+  return topics.find(topic => topic.id === id);
 };
 
-export const createTopic = (topic: Omit<Topic, "id" | "createdAt" | "applications">): Topic => {
-  initializeLocalStorage();
-  return storage.createItem<Topic>(STORAGE_KEYS.TOPICS, {
+export const createTopic = (topic: Omit<Topic, "id" | "createdAt" | "updatedAt" | "applicationCount">): Topic => {
+  const topics = getTopics();
+  const newTopic: Topic = {
+    id: `t${Date.now()}`,
     ...topic,
-    applications: 0
-  });
+    applicationCount: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  const updatedTopics = [...topics, newTopic];
+  localStorage.setItem('enicarthage_topics', JSON.stringify(updatedTopics));
+  return newTopic;
 };
 
 export const updateTopic = (id: string, updatedTopic: Partial<Topic>): Topic | undefined => {
-  return storage.updateItem<Topic>(STORAGE_KEYS.TOPICS, id, updatedTopic);
+  const topics = getTopics();
+  const topicIndex = topics.findIndex(topic => topic.id === id);
+  
+  if (topicIndex === -1) return undefined;
+  
+  const topic = topics[topicIndex];
+  const newTopic = { 
+    ...topic, 
+    ...updatedTopic,
+    updatedAt: new Date().toISOString()
+  };
+  
+  topics[topicIndex] = newTopic;
+  localStorage.setItem('enicarthage_topics', JSON.stringify(topics));
+  return newTopic;
 };
 
 export const deleteTopic = (id: string): boolean => {
-  // Delete all applications for this topic
-  const applications = getApplicationsByTopic(id);
-  applications.forEach(app => deleteApplication(app.id));
+  const topics = getTopics();
+  const filteredTopics = topics.filter(topic => topic.id !== id);
   
-  return storage.deleteItem<Topic>(STORAGE_KEYS.TOPICS, id);
+  if (filteredTopics.length === topics.length) return false;
+  
+  localStorage.setItem('enicarthage_topics', JSON.stringify(filteredTopics));
+  return true;
 };
 
-// Application CRUD Operations
+// Applications
 export const getApplications = (): Application[] => {
-  initializeLocalStorage();
-  return storage.get<Application>(STORAGE_KEYS.APPLICATIONS);
+  const storedApplications = localStorage.getItem('enicarthage_applications');
+  return storedApplications ? JSON.parse(storedApplications) : mockedApplications;
 };
 
 export const getApplicationsByTopic = (topicId: string): Application[] => {
-  return storage.filter<Application>(
-    STORAGE_KEYS.APPLICATIONS, 
-    app => app.topicId === topicId
-  );
+  const applications = getApplications();
+  return applications.filter(app => app.topicId === topicId);
 };
 
 export const getApplicationsByStudent = (studentId: string): Application[] => {
-  return storage.filter<Application>(
-    STORAGE_KEYS.APPLICATIONS, 
-    app => app.studentId === studentId
-  );
+  const applications = getApplications();
+  return applications.filter(app => app.studentId === studentId);
 };
 
-export const createApplication = (application: Omit<Application, "id" | "appliedAt" | "status">): Application => {
-  const newApplication = storage.createItem<Application>(STORAGE_KEYS.APPLICATIONS, {
-    ...application,
-    status: "Pending"
-  }, 'id');
+export const createApplication = (application: Omit<Application, "id" | "status" | "appliedAt">): Application => {
+  const applications = getApplications();
   
-  // Update the applications count for the topic
+  // Incrémenter le nombre d'applications pour ce sujet
   const topics = getTopics();
-  const topicIndex = topics.findIndex(topic => topic.id === application.topicId);
-  if (topicIndex !== -1) {
-    topics[topicIndex].applications = (topics[topicIndex].applications || 0) + 1;
-    storage.set(STORAGE_KEYS.TOPICS, topics);
+  const topicIndex = topics.findIndex(t => t.id === application.topicId);
+  
+  if (topicIndex >= 0) {
+    topics[topicIndex] = {
+      ...topics[topicIndex],
+      applicationCount: topics[topicIndex].applicationCount + 1
+    };
+    localStorage.setItem('enicarthage_topics', JSON.stringify(topics));
   }
   
+  const newApplication: Application = {
+    id: `a${Date.now()}`,
+    ...application,
+    status: "PENDING",
+    appliedAt: new Date().toISOString()
+  };
+  
+  const updatedApplications = [...applications, newApplication];
+  localStorage.setItem('enicarthage_applications', JSON.stringify(updatedApplications));
   return newApplication;
 };
 
-export const updateApplication = (id: string, updatedApplication: Partial<Application>): Application | undefined => {
-  return storage.updateItem<Application>(STORAGE_KEYS.APPLICATIONS, id, updatedApplication);
+export const updateApplication = (id: string, updatedData: Partial<Application>): Application | undefined => {
+  const applications = getApplications();
+  const applicationIndex = applications.findIndex(app => app.id === id);
+  
+  if (applicationIndex === -1) return undefined;
+  
+  const application = applications[applicationIndex];
+  const newApplication = { 
+    ...application, 
+    ...updatedData,
+  };
+  
+  applications[applicationIndex] = newApplication;
+  localStorage.setItem('enicarthage_applications', JSON.stringify(applications));
+  return newApplication;
 };
 
 export const deleteApplication = (id: string): boolean => {
-  const application = storage.getItem<Application>(STORAGE_KEYS.APPLICATIONS, id);
+  const applications = getApplications();
+  const filteredApplications = applications.filter(app => app.id !== id);
   
-  if (!application) return false;
+  if (filteredApplications.length === applications.length) return false;
   
-  const result = storage.deleteItem<Application>(STORAGE_KEYS.APPLICATIONS, id);
-  
-  if (result) {
-    // Update the applications count for the topic
-    const topics = getTopics();
-    const topicIndex = topics.findIndex(topic => topic.id === application.topicId);
-    if (topicIndex !== -1 && topics[topicIndex].applications && topics[topicIndex].applications > 0) {
-      topics[topicIndex].applications = topics[topicIndex].applications! - 1;
-      storage.set(STORAGE_KEYS.TOPICS, topics);
-    }
-  }
-  
-  return result;
+  localStorage.setItem('enicarthage_applications', JSON.stringify(filteredApplications));
+  return true;
 };
 
-// User CRUD Operations
+// Users
 export const getUsers = (): User[] => {
-  initializeLocalStorage();
-  return storage.get<User>(STORAGE_KEYS.USERS);
+  const storedUsers = localStorage.getItem('enicarthage_users');
+  return storedUsers ? JSON.parse(storedUsers) : mockedUsers;
 };
 
 export const getUser = (id: string): User | undefined => {
-  initializeLocalStorage();
-  return storage.getItem<User>(STORAGE_KEYS.USERS, id);
+  const users = getUsers();
+  return users.find(user => user.id === id);
 };
 
-export const getCurrentUser = (): User | null => {
-  const userId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
-  if (!userId) return null;
-  
-  return getUser(userId) || null;
+export const getCurrentUser = (): User | undefined => {
+  // Simuler un utilisateur connecté (étudiant par défaut)
+  return {
+    id: "s1",
+    name: "Alex Thompson",
+    email: "alex.t@university.edu",
+    role: "ROLE_STUDENT"
+  };
 };
 
-export const setCurrentUser = (userId: string | null) => {
-  if (userId) {
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, userId);
-  } else {
-    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
-  }
-};
-
-export const createUser = (user: Omit<User, "id" | "createdAt">): User => {
-  return storage.createItem<User>(STORAGE_KEYS.USERS, user);
-};
-
-export const updateUser = (id: string, updatedUser: Partial<User>): User | undefined => {
-  return storage.updateItem<User>(STORAGE_KEYS.USERS, id, updatedUser);
-};
-
-export const deleteUser = (id: string): boolean => {
-  return storage.deleteItem<User>(STORAGE_KEYS.USERS, id);
-};
-
-// Discussion CRUD Operations
+// Autres opérations CRUD pour Discussions, Resources, Progress, etc.
 export const getDiscussions = (topicId: string): Discussion[] => {
-  initializeLocalStorage();
-  return storage.filter<Discussion>(
-    STORAGE_KEYS.DISCUSSIONS,
-    discussion => discussion.topicId === topicId
-  );
+  const storedDiscussions = localStorage.getItem(`enicarthage_discussions_${topicId}`);
+  return storedDiscussions ? JSON.parse(storedDiscussions) : [];
 };
 
 export const createDiscussion = (discussion: Omit<Discussion, "id" | "createdAt">): Discussion => {
-  return storage.createItem<Discussion>(STORAGE_KEYS.DISCUSSIONS, discussion);
+  const topicId = discussion.topicId;
+  const discussions = getDiscussions(topicId);
+  
+  const newDiscussion: Discussion = {
+    id: `d${Date.now()}`,
+    ...discussion,
+    createdAt: new Date().toISOString()
+  };
+  
+  const updatedDiscussions = [...discussions, newDiscussion];
+  localStorage.setItem(`enicarthage_discussions_${topicId}`, JSON.stringify(updatedDiscussions));
+  return newDiscussion;
 };
 
 export const deleteDiscussion = (id: string): boolean => {
-  return storage.deleteItem<Discussion>(STORAGE_KEYS.DISCUSSIONS, id);
+  // Cette implémentation est simplifiée car nous n'avons pas de moyen facile de savoir
+  // à quel topicId appartient la discussion sans la parcourir
+  const allKeys = Object.keys(localStorage);
+  const discussionKeys = allKeys.filter(key => key.startsWith('enicarthage_discussions_'));
+  
+  for (const key of discussionKeys) {
+    const discussions = JSON.parse(localStorage.getItem(key) || '[]');
+    const filteredDiscussions = discussions.filter((d: Discussion) => d.id !== id);
+    
+    if (filteredDiscussions.length !== discussions.length) {
+      localStorage.setItem(key, JSON.stringify(filteredDiscussions));
+      return true;
+    }
+  }
+  
+  return false;
 };
 
-// Resource CRUD Operations
 export const getResources = (topicId: string): Resource[] => {
-  initializeLocalStorage();
-  return storage.filter<Resource>(
-    STORAGE_KEYS.RESOURCES,
-    resource => resource.topicId === topicId
-  );
-};
-
-export const createResource = (resource: Omit<Resource, "id" | "createdAt">): Resource => {
-  return storage.createItem<Resource>(STORAGE_KEYS.RESOURCES, resource);
+  const storedResources = localStorage.getItem(`enicarthage_resources_${topicId}`);
+  return storedResources ? JSON.parse(storedResources) : [];
 };
 
 export const deleteResource = (id: string): boolean => {
-  return storage.deleteItem<Resource>(STORAGE_KEYS.RESOURCES, id);
+  // Même approche que pour les discussions
+  const allKeys = Object.keys(localStorage);
+  const resourceKeys = allKeys.filter(key => key.startsWith('enicarthage_resources_'));
+  
+  for (const key of resourceKeys) {
+    const resources = JSON.parse(localStorage.getItem(key) || '[]');
+    const filteredResources = resources.filter((r: Resource) => r.id !== id);
+    
+    if (filteredResources.length !== resources.length) {
+      localStorage.setItem(key, JSON.stringify(filteredResources));
+      return true;
+    }
+  }
+  
+  return false;
 };
 
-// Progress CRUD Operations
 export const getProgressByTopic = (topicId: string): Progress[] => {
-  initializeLocalStorage();
-  return storage.filter<Progress>(
-    STORAGE_KEYS.PROGRESS,
-    progress => progress.topicId === topicId
-  );
+  const storedProgress = localStorage.getItem(`enicarthage_progress_${topicId}`);
+  return storedProgress ? JSON.parse(storedProgress) : [];
 };
 
 export const getProgressByStudent = (studentId: string): Progress[] => {
-  initializeLocalStorage();
-  return storage.filter<Progress>(
-    STORAGE_KEYS.PROGRESS,
-    progress => progress.studentId === studentId
-  );
+  // Plutôt qu'une implémentation optimale, nous utilisons une approche simplifiée
+  const allKeys = Object.keys(localStorage);
+  const progressKeys = allKeys.filter(key => key.startsWith('enicarthage_progress_'));
+  
+  let allProgress: Progress[] = [];
+  
+  for (const key of progressKeys) {
+    const progress = JSON.parse(localStorage.getItem(key) || '[]');
+    allProgress = [...allProgress, ...progress];
+  }
+  
+  return allProgress.filter(p => p.studentId === studentId);
 };
 
 export const createProgress = (progress: Omit<Progress, "id" | "lastUpdated">): Progress => {
-  return storage.createItem<Progress>(STORAGE_KEYS.PROGRESS, progress);
-};
-
-export const updateProgress = (id: string, updatedProgress: Partial<Progress>): Progress | undefined => {
-  // Ensure the lastUpdated field is set to now
-  const now = new Date().toISOString();
-  return storage.updateItem<Progress>(
-    STORAGE_KEYS.PROGRESS, 
-    id, 
-    { ...updatedProgress, lastUpdated: now }
-  );
+  const topicId = progress.topicId;
+  const progressRecords = getProgressByTopic(topicId);
+  
+  const newProgress: Progress = {
+    id: `p${Date.now()}`,
+    ...progress,
+    lastUpdated: new Date().toISOString()
+  };
+  
+  const updatedProgress = [...progressRecords, newProgress];
+  localStorage.setItem(`enicarthage_progress_${topicId}`, JSON.stringify(updatedProgress));
+  return newProgress;
 };

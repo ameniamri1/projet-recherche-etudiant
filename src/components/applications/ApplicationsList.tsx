@@ -3,12 +3,58 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Application } from "@/types/types";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { ApplicationService } from "@/services";
+import { ApplicationStatusUpdateRequest } from "@/types/types";
 
 interface ApplicationsListProps {
   applications: Application[];
+  onUpdate?: () => void;
 }
 
-const ApplicationsList = ({ applications }: ApplicationsListProps) => {
+const ApplicationsList = ({ applications, onUpdate }: ApplicationsListProps) => {
+  const { toast } = useToast();
+  const [processingApplicationId, setProcessingApplicationId] = useState<string | null>(null);
+
+  const handleStatusUpdate = async (id: string, status: "ACCEPTED" | "DECLINED", feedback?: string) => {
+    setProcessingApplicationId(id);
+    try {
+      const statusUpdate: ApplicationStatusUpdateRequest = {
+        status: status,
+        feedback: feedback || undefined
+      };
+      
+      await ApplicationService.updateApplicationStatus(id, statusUpdate);
+      
+      toast({
+        title: status === "ACCEPTED" ? "Candidature acceptée" : "Candidature refusée",
+        description: "Le statut de la candidature a été mis à jour avec succès",
+      });
+
+      if (onUpdate) {
+        onUpdate();
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du statut:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le statut de la candidature",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessingApplicationId(null);
+    }
+  };
+
+  const handleRequestMoreInfo = (studentEmail: string) => {
+    // Dans une version réelle, cela pourrait ouvrir un composant de messagerie ou envoyer un email
+    toast({
+      title: "Demande d'information",
+      description: `Un email de demande d'informations sera envoyé à ${studentEmail}`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       {applications.map((application) => (
@@ -40,13 +86,29 @@ const ApplicationsList = ({ applications }: ApplicationsListProps) => {
             </div>
             {application.status === "PENDING" && (
               <div className="flex space-x-2 justify-end">
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleRequestMoreInfo(application.studentId)}
+                  disabled={!!processingApplicationId}
+                >
                   Request More Info
                 </Button>
-                <Button variant="destructive" size="sm">
-                  Decline
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => handleStatusUpdate(application.id, "DECLINED")}
+                  disabled={processingApplicationId === application.id}
+                >
+                  {processingApplicationId === application.id ? "Processing..." : "Decline"}
                 </Button>
-                <Button size="sm">Accept</Button>
+                <Button 
+                  size="sm"
+                  onClick={() => handleStatusUpdate(application.id, "ACCEPTED")}
+                  disabled={processingApplicationId === application.id}
+                >
+                  {processingApplicationId === application.id ? "Processing..." : "Accept"}
+                </Button>
               </div>
             )}
             {application.status !== "PENDING" && (
