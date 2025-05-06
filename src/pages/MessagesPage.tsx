@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, Search, Send, MoreVertical, Phone, Video } from "lucide-react";
-import { Conversation, Message } from "@/types/types";
+import { Conversation, Message, tunisianNames } from "@/types/types";
 import { MessageService, AuthService } from "@/services";
 import { useToast } from "@/hooks/use-toast";
 import { format, formatDistanceToNow } from "date-fns";
@@ -64,7 +64,7 @@ const MessagesPage = () => {
         setActiveConversation(data[0]);
       }
     } catch (error) {
-      console.error("Failed to load conversations:", error);
+      console.error("Impossible de charger les conversations:", error);
       toast({
         title: "Erreur",
         description: "Impossible de charger les conversations",
@@ -80,7 +80,7 @@ const MessagesPage = () => {
       const data = await MessageService.getMessages(conversationId);
       setMessages(data);
     } catch (error) {
-      console.error(`Failed to load messages for conversation ${conversationId}:`, error);
+      console.error(`Impossible de charger les messages pour la conversation ${conversationId}:`, error);
       toast({
         title: "Erreur",
         description: "Impossible de charger les messages",
@@ -113,7 +113,7 @@ const MessagesPage = () => {
       
       setMessageText("");
     } catch (error) {
-      console.error("Failed to send message:", error);
+      console.error("Impossible d'envoyer le message:", error);
       toast({
         title: "Erreur",
         description: "Impossible d'envoyer le message",
@@ -145,7 +145,7 @@ const MessagesPage = () => {
     }
     
     // Sinon
-    return format(date, "dd/MM/yyyy");
+    return format(date, "dd/MM/yyyy", { locale: fr });
   };
 
   const formatConversationTime = (dateString: string) => {
@@ -163,7 +163,7 @@ const MessagesPage = () => {
     }
     
     // Sinon
-    return format(date, "dd/MM/yyyy");
+    return format(date, "dd/MM/yyyy", { locale: fr });
   };
 
   const getInitials = (name: string) => {

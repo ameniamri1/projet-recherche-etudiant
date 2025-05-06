@@ -10,25 +10,27 @@ import { BookOpen, CheckCheck, Clock, User, Bell, MessageSquare } from "lucide-r
 import { Application } from "@/types/types";
 import { useToast } from "@/hooks/use-toast";
 import { ApplicationService, AuthService } from "@/services";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
-// Mock notifications - dans une vraie application, cela viendrait du backend
+// Liste des notifications pour 2025
 const notifications = [
   {
     id: "1",
-    message: "Your application for 'Machine Learning Algorithms' has been accepted",
-    date: "2023-04-12T10:30:00Z",
+    message: "Votre candidature pour 'Algorithmes d'apprentissage automatique' a été acceptée",
+    date: "2025-04-12T10:30:00Z",
     read: false
   },
   {
     id: "2",
-    message: "New research topic added in Computer Science",
-    date: "2023-04-10T14:20:00Z",
+    message: "Nouveau sujet de recherche ajouté en Informatique",
+    date: "2025-04-10T14:20:00Z",
     read: true
   },
   {
     id: "3",
-    message: "Deadline approaching for 'Neural Networks' application",
-    date: "2023-04-08T09:15:00Z",
+    message: "Date limite approchante pour la candidature 'Réseaux de neurones'",
+    date: "2025-04-08T09:15:00Z",
     read: true
   }
 ];
@@ -74,13 +76,13 @@ const StudentDashboardPage = () => {
         >
           <div className="flex items-center gap-3">
             <User className="h-6 w-6 text-indigo-600" />
-            <h1 className="text-3xl font-bold text-indigo-800">Student Dashboard</h1>
+            <h1 className="text-3xl font-bold text-indigo-800">Tableau de bord étudiant</h1>
           </div>
           <Button 
             asChild
             className="bg-indigo-600 hover:bg-indigo-700"
           >
-            <Link to="/topics">Browse Topics</Link>
+            <Link to="/topics">Parcourir les sujets</Link>
           </Button>
         </motion.div>
 
@@ -97,7 +99,7 @@ const StudentDashboardPage = () => {
                 <CheckCheck className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 font-medium">Applications</p>
+                <p className="text-sm text-gray-500 font-medium">Candidatures</p>
                 <p className="text-2xl font-bold">{applications.length}</p>
               </div>
             </div>
@@ -109,7 +111,7 @@ const StudentDashboardPage = () => {
                 <CheckCheck className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 font-medium">Accepted</p>
+                <p className="text-sm text-gray-500 font-medium">Acceptées</p>
                 <p className="text-2xl font-bold">
                   {applications.filter(app => app.status === "ACCEPTED").length}
                 </p>
@@ -123,7 +125,7 @@ const StudentDashboardPage = () => {
                 <Clock className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 font-medium">Pending</p>
+                <p className="text-sm text-gray-500 font-medium">En attente</p>
                 <p className="text-2xl font-bold">
                   {applications.filter(app => app.status === "PENDING").length}
                 </p>
@@ -158,7 +160,7 @@ const StudentDashboardPage = () => {
                 value="applications" 
                 className="data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700"
               >
-                <CheckCheck className="h-4 w-4 mr-2" /> My Applications
+                <CheckCheck className="h-4 w-4 mr-2" /> Mes candidatures
               </TabsTrigger>
               <TabsTrigger 
                 value="notifications" 
@@ -188,10 +190,10 @@ const StudentDashboardPage = () => {
                 ) : applications.length === 0 ? (
                   <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-lg">
                     <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-2" />
-                    <h3 className="text-lg font-medium text-gray-700">No applications yet</h3>
-                    <p className="text-gray-500 mt-1">Start applying to research topics to see them here</p>
+                    <h3 className="text-lg font-medium text-gray-700">Aucune candidature pour le moment</h3>
+                    <p className="text-gray-500 mt-1">Commencez à postuler aux sujets de recherche pour les voir ici</p>
                     <Button asChild className="mt-4">
-                      <Link to="/topics">Browse Topics</Link>
+                      <Link to="/topics">Parcourir les sujets</Link>
                     </Button>
                   </div>
                 ) : (
@@ -204,7 +206,7 @@ const StudentDashboardPage = () => {
                               {application.topicTitle}
                             </CardTitle>
                             <CardDescription>
-                              Applied on: {new Date(application.appliedAt).toLocaleDateString()}
+                              Postulé le: {format(new Date(application.appliedAt), 'dd MMMM yyyy', { locale: fr })}
                             </CardDescription>
                           </div>
                           <Badge
@@ -216,19 +218,20 @@ const StudentDashboardPage = () => {
                                 : "bg-red-100 text-red-800 hover:bg-red-200"
                             }
                           >
-                            {application.status}
+                            {application.status === "ACCEPTED" ? "Acceptée" : 
+                             application.status === "PENDING" ? "En attente" : "Refusée"}
                           </Badge>
                         </div>
                       </CardHeader>
                       
                       <CardContent className="py-4">
                         <div className="space-y-2">
-                          <h4 className="text-sm font-semibold text-gray-700">Your Message:</h4>
+                          <h4 className="text-sm font-semibold text-gray-700">Votre message :</h4>
                           <p className="text-gray-600 text-sm">{application.message}</p>
                         </div>
                         {application.teacherFeedback && (
                           <div className="mt-4 pt-4 border-t border-gray-100">
-                            <h4 className="text-sm font-semibold text-gray-700">Teacher Feedback:</h4>
+                            <h4 className="text-sm font-semibold text-gray-700">Commentaire de l'enseignant :</h4>
                             <p className="text-gray-600 text-sm">{application.teacherFeedback}</p>
                           </div>
                         )}
@@ -236,12 +239,12 @@ const StudentDashboardPage = () => {
                       
                       <CardFooter className="flex justify-between bg-gray-50 border-t border-gray-100">
                         <Button variant="outline" size="sm" asChild>
-                          <Link to={`/topic/${application.topicId}`}>View Topic</Link>
+                          <Link to={`/topic/${application.topicId}`}>Voir le sujet</Link>
                         </Button>
                         
                         {application.status === "ACCEPTED" && (
                           <Button size="sm">
-                            <MessageSquare className="h-4 w-4 mr-2" /> Contact Teacher
+                            <MessageSquare className="h-4 w-4 mr-2" /> Contacter l'enseignant
                           </Button>
                         )}
                       </CardFooter>
@@ -270,12 +273,12 @@ const StudentDashboardPage = () => {
                         <div>
                           <p className="text-gray-800">{notification.message}</p>
                           <p className="text-xs text-gray-500 mt-1">
-                            {new Date(notification.date).toLocaleString()}
+                            {format(new Date(notification.date), 'dd MMMM yyyy à HH:mm', { locale: fr })}
                           </p>
                         </div>
                       </div>
                       {!notification.read && (
-                        <Badge className="bg-indigo-100 text-indigo-800">New</Badge>
+                        <Badge className="bg-indigo-100 text-indigo-800">Nouveau</Badge>
                       )}
                     </div>
                   </div>
@@ -284,8 +287,8 @@ const StudentDashboardPage = () => {
                 {notifications.length === 0 && (
                   <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-lg">
                     <Bell className="h-12 w-12 text-gray-300 mx-auto mb-2" />
-                    <h3 className="text-lg font-medium text-gray-700">No notifications</h3>
-                    <p className="text-gray-500 mt-1">You'll be notified about application updates and new topics</p>
+                    <h3 className="text-lg font-medium text-gray-700">Aucune notification</h3>
+                    <p className="text-gray-500 mt-1">Vous serez notifié des mises à jour de candidatures et des nouveaux sujets</p>
                   </div>
                 )}
               </div>
@@ -298,8 +301,8 @@ const StudentDashboardPage = () => {
             >
               <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-lg">
                 <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-2" />
-                <h3 className="text-lg font-medium text-gray-700">No messages yet</h3>
-                <p className="text-gray-500 mt-1">Messages from teachers will appear here</p>
+                <h3 className="text-lg font-medium text-gray-700">Pas encore de messages</h3>
+                <p className="text-gray-500 mt-1">Les messages des enseignants apparaîtront ici</p>
               </div>
             </TabsContent>
           </Tabs>

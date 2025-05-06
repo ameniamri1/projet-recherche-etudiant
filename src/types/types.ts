@@ -121,7 +121,7 @@ export interface DiscussionRequest {
   message: string;
 }
 
-// Nouveaux types pour les messages
+// Types pour les messages avec des participants tunisiens
 export interface Message {
   id: string;
   conversationId: string;
@@ -154,3 +154,13 @@ export interface ConversationRequest {
   topicId: string;
   teacherId: string;
 }
+
+// Liste des noms tunisiens pour les utilisateurs (à utiliser dans les services)
+export const tunisianNames = [
+  "Ahmed Ben Ali", "Fatma Trabelsi", "Youssef Bouzidi", "Leila Khelifi", 
+  "Mohamed Sfaxi", "Amal Lahmar", "Karim Touati", "Sana Mejri",
+  "Nabil Jendoubi", "Hela Bouazizi", "Tarek Hamdi", "Amina Chahed",
+  "Hichem Jelassi", "Rania Oueslati", "Bilel Gharbi", "Salma Jabeur",
+  "Omar Belhadj", "Ines Haddad", "Slim Yacoubi", "Nour Belhaj",
+  "Zied Maaloul", "Mariem Ayari", "Jamel Mansouri", "Dorra Kallel"
+];

@@ -1,19 +1,82 @@
 
-import { API_CONFIG } from '@/config/api.config';
+import { Message, Conversation, MessageRequest, ConversationRequest, tunisianNames } from '@/types/types';
 import ApiService from '@/utils/apiService';
-import { Discussion, Message, Conversation } from '@/types/types';
+import { API_CONFIG } from '@/config/api.config';
 
+// Service pour gérer les messages et les conversations
 export const MessageService = {
-  // Récupérer toutes les conversations d'un utilisateur
+  // Récupérer toutes les conversations de l'utilisateur
   getConversations: async (): Promise<Conversation[]> => {
     try {
-      return await ApiService.get<Conversation[]>(`${API_CONFIG.ENDPOINTS.USERS}/conversations`);
+      return await ApiService.get<Conversation[]>(API_CONFIG.ENDPOINTS.CONVERSATIONS);
     } catch (error) {
       console.error('Failed to fetch conversations:', error);
-      // En mode développement, nous retournons des données mockées
+      
+      // Données mockées pour le développement avec des noms tunisiens
       if (import.meta.env.MODE === 'development') {
-        return getMockedConversations();
+        const startDate = new Date('2025-01-01');
+        const now = new Date('2025-05-06'); // Date actuelle en 2025
+        
+        // Générer des dates entre janvier et mai 2025
+        const getRandomDate = () => {
+          const randomTime = startDate.getTime() + Math.random() * (now.getTime() - startDate.getTime());
+          return new Date(randomTime).toISOString();
+        };
+        
+        const mockConversations: Conversation[] = [
+          {
+            id: 'conv1',
+            participants: [
+              { id: 'student1', name: tunisianNames[10], role: 'ROLE_STUDENT' },
+              { id: 'teacher1', name: tunisianNames[0], role: 'ROLE_TEACHER' }
+            ],
+            lastMessage: "J'ai des questions sur la méthodologie de recherche",
+            lastMessageTime: getRandomDate(),
+            unreadCount: 2,
+            topicId: 'topic1',
+            topicTitle: 'Intelligence Artificielle et Apprentissage Automatique'
+          },
+          {
+            id: 'conv2',
+            participants: [
+              { id: 'student1', name: tunisianNames[10], role: 'ROLE_STUDENT' },
+              { id: 'teacher2', name: tunisianNames[1], role: 'ROLE_TEACHER' }
+            ],
+            lastMessage: "Pouvez-vous m'aider avec les références bibliographiques?",
+            lastMessageTime: getRandomDate(),
+            unreadCount: 0,
+            topicId: 'topic2',
+            topicTitle: 'Sécurité des Systèmes Distribués'
+          },
+          {
+            id: 'conv3',
+            participants: [
+              { id: 'student1', name: tunisianNames[10], role: 'ROLE_STUDENT' },
+              { id: 'teacher3', name: tunisianNames[2], role: 'ROLE_TEACHER' }
+            ],
+            lastMessage: "Je viens de soumettre la première partie de mon travail",
+            lastMessageTime: getRandomDate(),
+            unreadCount: 1,
+            topicId: 'topic3',
+            topicTitle: 'Blockchain et Applications Décentralisées'
+          },
+          {
+            id: 'conv4',
+            participants: [
+              { id: 'student1', name: tunisianNames[10], role: 'ROLE_STUDENT' },
+              { id: 'teacher4', name: tunisianNames[3], role: 'ROLE_TEACHER' }
+            ],
+            lastMessage: "Merci pour vos conseils, je vais les appliquer",
+            lastMessageTime: getRandomDate(),
+            unreadCount: 0,
+            topicId: 'topic4',
+            topicTitle: 'Systèmes Embarqués pour IoT'
+          }
+        ];
+        
+        return mockConversations;
       }
+      
       return [];
     }
   },
@@ -21,147 +84,147 @@ export const MessageService = {
   // Récupérer les messages d'une conversation
   getMessages: async (conversationId: string): Promise<Message[]> => {
     try {
-      return await ApiService.get<Message[]>(`${API_CONFIG.ENDPOINTS.USERS}/conversations/${conversationId}/messages`);
+      return await ApiService.get<Message[]>(`${API_CONFIG.ENDPOINTS.CONVERSATIONS}/${conversationId}/messages`);
     } catch (error) {
       console.error(`Failed to fetch messages for conversation ${conversationId}:`, error);
-      // En mode développement, nous retournons des données mockées
+      
+      // Données mockées pour le développement
       if (import.meta.env.MODE === 'development') {
-        return getMockedMessages(conversationId);
+        const startDate = new Date('2025-04-01');
+        const endDate = new Date('2025-05-06'); // Date actuelle en 2025
+        
+        // Générer des dates entre avril et mai 2025
+        const getRandomDate = () => {
+          const randomTime = startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime());
+          return new Date(randomTime).toISOString();
+        };
+        
+        // Identifiants d'utilisateurs selon la conversation
+        let teacherId = '';
+        if (conversationId === 'conv1') teacherId = 'teacher1';
+        else if (conversationId === 'conv2') teacherId = 'teacher2';
+        else if (conversationId === 'conv3') teacherId = 'teacher3';
+        else teacherId = 'teacher4';
+        
+        const mockMessages: Message[] = [
+          {
+            id: `${conversationId}-msg1`,
+            conversationId,
+            senderId: 'student1',
+            text: "Bonjour, j'ai quelques questions concernant le sujet de recherche.",
+            createdAt: getRandomDate()
+          },
+          {
+            id: `${conversationId}-msg2`,
+            conversationId,
+            senderId: teacherId,
+            text: "Bonjour! Bien sûr, je serais ravi de vous aider. Quelles sont vos questions?",
+            createdAt: getRandomDate()
+          },
+          {
+            id: `${conversationId}-msg3`,
+            conversationId,
+            senderId: 'student1',
+            text: "Je voudrais savoir quelles méthodologies sont les plus appropriées pour ce type de recherche?",
+            createdAt: getRandomDate()
+          },
+          {
+            id: `${conversationId}-msg4`,
+            conversationId,
+            senderId: teacherId,
+            text: "Excellente question! Pour ce sujet spécifique, je recommande une approche mixte combinant l'analyse quantitative et qualitative. Avez-vous déjà consulté les articles que j'ai partagés?",
+            createdAt: getRandomDate()
+          },
+          {
+            id: `${conversationId}-msg5`,
+            conversationId,
+            senderId: 'student1',
+            text: "Oui, j'ai lu la plupart des articles. Ils sont très utiles. J'aimerais discuter de certains points plus en détail lors de notre prochaine réunion.",
+            createdAt: getRandomDate()
+          }
+        ];
+        
+        // Trier les messages par date
+        return mockMessages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
       }
+      
       return [];
     }
   },
 
   // Envoyer un message
-  sendMessage: async (conversationId: string, message: string): Promise<Message> => {
+  sendMessage: async (conversationId: string, text: string): Promise<Message> => {
+    const messageRequest: MessageRequest = { text };
+    
     try {
-      return await ApiService.post<Message>(
-        `${API_CONFIG.ENDPOINTS.USERS}/conversations/${conversationId}/messages`, 
-        { text: message }
-      );
+      return await ApiService.post<Message>(`${API_CONFIG.ENDPOINTS.CONVERSATIONS}/${conversationId}/messages`, messageRequest);
     } catch (error) {
-      console.error('Failed to send message:', error);
-      // En mode développement, nous retournons un message mocké
+      console.error(`Failed to send message to conversation ${conversationId}:`, error);
+      
+      // Simuler l'envoi d'un message en mode développement
       if (import.meta.env.MODE === 'development') {
-        return createMockedMessage(conversationId, message);
+        const mockMessage: Message = {
+          id: `msg-${Date.now()}`,
+          conversationId,
+          senderId: 'student1',
+          text,
+          createdAt: new Date().toISOString()
+        };
+        
+        return mockMessage;
       }
+      
       throw error;
     }
   },
 
-  // Créer une nouvelle conversation avec un enseignant à propos d'un sujet
+  // Créer une nouvelle conversation
   createConversation: async (topicId: string, teacherId: string): Promise<Conversation> => {
+    const conversationRequest: ConversationRequest = { topicId, teacherId };
+    
     try {
-      return await ApiService.post<Conversation>(
-        `${API_CONFIG.ENDPOINTS.USERS}/conversations`, 
-        { topicId, teacherId }
-      );
+      return await ApiService.post<Conversation>(API_CONFIG.ENDPOINTS.CONVERSATIONS, conversationRequest);
     } catch (error) {
       console.error('Failed to create conversation:', error);
-      // En mode développement, nous retournons une conversation mockée
+      
+      // Simuler la création d'une conversation en mode développement
       if (import.meta.env.MODE === 'development') {
-        return createMockedConversation(topicId, teacherId);
+        const mockConversation: Conversation = {
+          id: `conv-${Date.now()}`,
+          participants: [
+            { id: 'student1', name: tunisianNames[10], role: 'ROLE_STUDENT' },
+            { id: teacherId, name: tunisianNames[4], role: 'ROLE_TEACHER' }
+          ],
+          lastMessage: "",
+          lastMessageTime: new Date().toISOString(),
+          unreadCount: 0,
+          topicId,
+          topicTitle: 'Nouveau Sujet de Recherche'
+        };
+        
+        return mockConversation;
       }
+      
       throw error;
     }
   },
-};
 
-// Fonctions d'aide pour générer des données mockées (uniquement pour le développement)
-function getMockedConversations(): Conversation[] {
-  return [
-    {
-      id: "1",
-      participants: [
-        { id: "teacher1", name: "Prof. David Wilson", role: "ROLE_TEACHER" },
-        { id: "student1", name: "Current User", role: "ROLE_STUDENT" }
-      ],
-      lastMessage: "Yes, you can submit your application by Friday.",
-      lastMessageTime: new Date().toISOString(),
-      unreadCount: 2,
-      topicId: "topic1",
-      topicTitle: "Machine Learning Algorithms for Predictive Analytics"
-    },
-    {
-      id: "2",
-      participants: [
-        { id: "teacher2", name: "Dr. Sarah Johnson", role: "ROLE_TEACHER" },
-        { id: "student1", name: "Current User", role: "ROLE_STUDENT" }
-      ],
-      lastMessage: "Please look at the updated guidelines for the database project.",
-      lastMessageTime: new Date(Date.now() - 86400000).toISOString(), // yesterday
-      unreadCount: 0,
-      topicId: "topic2",
-      topicTitle: "Database Design Principles"
-    },
-    {
-      id: "3",
-      participants: [
-        { id: "teacher3", name: "Prof. Michael Brown", role: "ROLE_TEACHER" },
-        { id: "student1", name: "Current User", role: "ROLE_STUDENT" }
-      ],
-      lastMessage: "The meeting is scheduled for tomorrow at 3 PM in Room 302.",
-      lastMessageTime: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-      unreadCount: 0,
-      topicId: "topic3",
-      topicTitle: "Psychology of Human-Computer Interaction"
+  // Marquer les messages comme lus
+  markAsRead: async (conversationId: string): Promise<boolean> => {
+    try {
+      await ApiService.put<void>(`${API_CONFIG.ENDPOINTS.CONVERSATIONS}/${conversationId}/read`, {});
+      return true;
+    } catch (error) {
+      console.error(`Failed to mark conversation ${conversationId} as read:`, error);
+      
+      // Simuler le succès en mode développement
+      if (import.meta.env.MODE === 'development') {
+        return true;
+      }
+      
+      return false;
     }
-  ];
-}
-
-function getMockedMessages(conversationId: string): Message[] {
-  switch(conversationId) {
-    case "1":
-      return [
-        { id: "m1", conversationId: "1", senderId: "teacher1", text: "Hello, I saw your application for the research topic.", createdAt: new Date(Date.now() - 172800000).toISOString() },
-        { id: "m2", conversationId: "1", senderId: "student1", text: "Yes, I'm very interested in working on machine learning algorithms.", createdAt: new Date(Date.now() - 172500000).toISOString() },
-        { id: "m3", conversationId: "1", senderId: "teacher1", text: "Great! Could you tell me more about your previous experience with neural networks?", createdAt: new Date(Date.now() - 172200000).toISOString() },
-        { id: "m4", conversationId: "1", senderId: "student1", text: "I've worked on several projects involving convolutional neural networks during my internship last summer.", createdAt: new Date(Date.now() - 171600000).toISOString() },
-        { id: "m5", conversationId: "1", senderId: "teacher1", text: "That's excellent. Do you have any questions about the research topic?", createdAt: new Date(Date.now() - 86400000).toISOString() },
-        { id: "m6", conversationId: "1", senderId: "student1", text: "Yes, I was wondering about the deadline for the application?", createdAt: new Date(Date.now() - 3600000).toISOString() },
-        { id: "m7", conversationId: "1", senderId: "teacher1", text: "Yes, you can submit your application by Friday.", createdAt: new Date(Date.now() - 1800000).toISOString() },
-      ];
-    case "2":
-      return [
-        { id: "m1", conversationId: "2", senderId: "teacher2", text: "Hello, I'm Dr. Johnson, the supervisor for the database research project.", createdAt: new Date(Date.now() - 259200000).toISOString() },
-        { id: "m2", conversationId: "2", senderId: "student1", text: "Hello Dr. Johnson, thank you for accepting my application.", createdAt: new Date(Date.now() - 258000000).toISOString() },
-        { id: "m3", conversationId: "2", senderId: "teacher2", text: "You're welcome. I was impressed by your previous work with SQL databases.", createdAt: new Date(Date.now() - 257000000).toISOString() },
-        { id: "m4", conversationId: "2", senderId: "teacher2", text: "Please look at the updated guidelines for the database project.", createdAt: new Date(Date.now() - 86400000).toISOString() },
-      ];
-    case "3":
-      return [
-        { id: "m1", conversationId: "3", senderId: "teacher3", text: "Hello, I'd like to schedule a meeting to discuss the psychology research project.", createdAt: new Date(Date.now() - 345600000).toISOString() },
-        { id: "m2", conversationId: "3", senderId: "student1", text: "I'm available tomorrow afternoon.", createdAt: new Date(Date.now() - 345000000).toISOString() },
-        { id: "m3", conversationId: "3", senderId: "teacher3", text: "Perfect. The meeting is scheduled for tomorrow at 3 PM in Room 302.", createdAt: new Date(Date.now() - 344000000).toISOString() },
-      ];
-    default:
-      return [];
   }
-}
-
-function createMockedMessage(conversationId: string, text: string): Message {
-  return {
-    id: `new-${Date.now()}`,
-    conversationId,
-    senderId: "student1", // L'utilisateur actuel
-    text,
-    createdAt: new Date().toISOString()
-  };
-}
-
-function createMockedConversation(topicId: string, teacherId: string): Conversation {
-  return {
-    id: `new-${Date.now()}`,
-    participants: [
-      { id: teacherId, name: "Teacher Name", role: "ROLE_TEACHER" },
-      { id: "student1", name: "Current User", role: "ROLE_STUDENT" }
-    ],
-    lastMessage: "",
-    lastMessageTime: new Date().toISOString(),
-    unreadCount: 0,
-    topicId,
-    topicTitle: "New Conversation Topic"
-  };
-}
+};
 
 export default MessageService;

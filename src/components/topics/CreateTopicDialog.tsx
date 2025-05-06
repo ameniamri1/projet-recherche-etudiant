@@ -1,10 +1,11 @@
+
 import { useState } from "react";
-import { Calendar } from "lucide-react";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { DateRange } from "react-day-picker";
 
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { TopicService } from "@/services";
 import { TopicRequest } from "@/types/types";
+import { CalendarIcon } from "lucide-react";
 
 interface CreateTopicDialogProps {
   open: boolean;
@@ -50,8 +52,8 @@ const CreateTopicDialog: React.FC<CreateTopicDialogProps> = ({ open, setOpen, on
         description,
         category,
         prerequisites,
-        contact,
         deadline: date.to.toISOString(), // Utilisez la date de fin comme deadline
+        contact
       };
 
       await TopicService.createTopic(newTopic);
@@ -170,12 +172,13 @@ const CreateTopicDialog: React.FC<CreateTopicDialogProps> = ({ open, setOpen, on
                   >
                     {date?.from ? (
                       date.to ? (
-                        `${format(date.from, "dd/MM/yyyy")} - ${format(
+                        `${format(date.from, "dd/MM/yyyy", { locale: fr })} - ${format(
                           date.to,
-                          "dd/MM/yyyy"
+                          "dd/MM/yyyy",
+                          { locale: fr }
                         )}`
                       ) : (
-                        format(date.from, "dd/MM/yyyy")
+                        format(date.from, "dd/MM/yyyy", { locale: fr })
                       )
                     ) : (
                       <span>Choisir une date</span>
@@ -191,6 +194,7 @@ const CreateTopicDialog: React.FC<CreateTopicDialogProps> = ({ open, setOpen, on
                     onSelect={setDate}
                     numberOfMonths={2}
                     pagedNavigation
+                    locale={fr}
                   />
                 </PopoverContent>
               </Popover>
