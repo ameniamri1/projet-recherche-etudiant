@@ -1,5 +1,5 @@
 
-import { Application } from '@/types/types';
+import { Application, ApplicationRequest, ApplicationStatusUpdateRequest } from '@/types/types';
 import ApiService from '@/utils/apiService';
 import { API_CONFIG } from '@/config/api.config';
 
@@ -17,6 +17,16 @@ export const ApplicationService = {
         return getApplications();
       }
       return [];
+    }
+  },
+
+  // Récupérer une candidature spécifique
+  getApplication: async (id: string): Promise<Application> => {
+    try {
+      return await ApiService.get<Application>(`${API_CONFIG.ENDPOINTS.APPLICATIONS}/${id}`);
+    } catch (error) {
+      console.error(`Failed to fetch application with id ${id}:`, error);
+      throw error;
     }
   },
 
@@ -51,7 +61,7 @@ export const ApplicationService = {
   },
 
   // Créer une nouvelle candidature
-  createApplication: async (application: Omit<Application, "id" | "appliedAt" | "status">): Promise<Application> => {
+  createApplication: async (application: ApplicationRequest): Promise<Application> => {
     try {
       return await ApiService.post<Application>(API_CONFIG.ENDPOINTS.APPLICATIONS, application);
     } catch (error) {
@@ -59,23 +69,18 @@ export const ApplicationService = {
       // Fallback aux données mockées en mode développement
       if (import.meta.env.MODE === 'development') {
         const { createApplication } = await import('@/utils/crudUtils');
-        return createApplication(application);
+        return createApplication(application as any);
       }
       throw error;
     }
   },
 
-  // Mettre à jour une candidature
-  updateApplication: async (id: string, updatedApplication: Partial<Application>): Promise<Application | undefined> => {
+  // Mettre à jour le statut d'une candidature
+  updateApplicationStatus: async (id: string, statusUpdate: ApplicationStatusUpdateRequest): Promise<Application | undefined> => {
     try {
-      return await ApiService.put<Application>(`${API_CONFIG.ENDPOINTS.APPLICATIONS}/${id}`, updatedApplication);
+      return await ApiService.put<Application>(`${API_CONFIG.ENDPOINTS.APPLICATIONS}/${id}/status`, statusUpdate);
     } catch (error) {
-      console.error(`Failed to update application with id ${id}:`, error);
-      // Fallback aux données mockées en mode développement
-      if (import.meta.env.MODE === 'development') {
-        const { updateApplication } = await import('@/utils/crudUtils');
-        return updateApplication(id, updatedApplication);
-      }
+      console.error(`Failed to update application status with id ${id}:`, error);
       return undefined;
     }
   },

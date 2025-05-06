@@ -1,5 +1,5 @@
 
-import { Progress } from '@/types/types';
+import { Progress, ProgressRequest } from '@/types/types';
 import ApiService from '@/utils/apiService';
 import { API_CONFIG } from '@/config/api.config';
 
@@ -35,33 +35,29 @@ export const ProgressService = {
     }
   },
 
-  // Créer un nouveau suivi de progression
-  createProgress: async (progress: Omit<Progress, "id" | "lastUpdated">): Promise<Progress> => {
+  // Créer ou mettre à jour un suivi de progression
+  createOrUpdateProgress: async (progressData: ProgressRequest): Promise<Progress> => {
     try {
-      return await ApiService.post<Progress>(API_CONFIG.ENDPOINTS.PROGRESS, progress);
+      return await ApiService.post<Progress>(API_CONFIG.ENDPOINTS.PROGRESS, progressData);
     } catch (error) {
-      console.error('Failed to create progress:', error);
+      console.error('Failed to create/update progress:', error);
       // Fallback aux données mockées en mode développement
       if (import.meta.env.MODE === 'development') {
         const { createProgress } = await import('@/utils/crudUtils');
-        return createProgress(progress);
+        return createProgress(progressData as any);
       }
       throw error;
     }
   },
 
-  // Mettre à jour un suivi de progression
-  updateProgress: async (id: string, updatedProgress: Partial<Progress>): Promise<Progress | undefined> => {
+  // Supprimer un suivi de progression
+  deleteProgress: async (progressId: string): Promise<boolean> => {
     try {
-      return await ApiService.put<Progress>(`${API_CONFIG.ENDPOINTS.PROGRESS}/${id}`, updatedProgress);
+      await ApiService.delete<void>(`${API_CONFIG.ENDPOINTS.PROGRESS}/${progressId}`);
+      return true;
     } catch (error) {
-      console.error(`Failed to update progress with id ${id}:`, error);
-      // Fallback aux données mockées en mode développement
-      if (import.meta.env.MODE === 'development') {
-        const { updateProgress } = await import('@/utils/crudUtils');
-        return updateProgress(id, updatedProgress);
-      }
-      return undefined;
+      console.error(`Failed to delete progress with id ${progressId}:`, error);
+      return false;
     }
   }
 };

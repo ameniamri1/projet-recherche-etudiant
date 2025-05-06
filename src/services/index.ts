@@ -6,3 +6,4 @@ export { default as UserService } from './userService';
 export { default as DiscussionService } from './discussionService';
 export { default as ResourceService } from './resourceService';
 export { default as ProgressService } from './progressService';
+export { default as AuthService } from './authService';

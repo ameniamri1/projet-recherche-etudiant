@@ -1,5 +1,5 @@
 
-import { Discussion } from '@/types/types';
+import { Discussion, DiscussionRequest } from '@/types/types';
 import ApiService from '@/utils/apiService';
 import { API_CONFIG } from '@/config/api.config';
 
@@ -21,10 +21,10 @@ export const DiscussionService = {
   },
 
   // Créer une nouvelle discussion
-  createDiscussion: async (discussion: Omit<Discussion, "id" | "createdAt">): Promise<Discussion> => {
+  createDiscussion: async (topicId: string, discussion: DiscussionRequest): Promise<Discussion> => {
     try {
       return await ApiService.post<Discussion>(
-        `${API_CONFIG.ENDPOINTS.TOPICS}/${discussion.topicId}/discussions`, 
+        `${API_CONFIG.ENDPOINTS.TOPICS}/${topicId}/discussions`, 
         discussion
       );
     } catch (error) {
@@ -32,23 +32,36 @@ export const DiscussionService = {
       // Fallback aux données mockées en mode développement
       if (import.meta.env.MODE === 'development') {
         const { createDiscussion } = await import('@/utils/crudUtils');
-        return createDiscussion(discussion);
+        return createDiscussion({...discussion, topicId});
       }
+      throw error;
+    }
+  },
+  
+  // Mettre à jour une discussion
+  updateDiscussion: async (topicId: string, discussionId: string, updatedDiscussion: DiscussionRequest): Promise<Discussion> => {
+    try {
+      return await ApiService.put<Discussion>(
+        `${API_CONFIG.ENDPOINTS.TOPICS}/${topicId}/discussions/${discussionId}`, 
+        updatedDiscussion
+      );
+    } catch (error) {
+      console.error(`Failed to update discussion with id ${discussionId}:`, error);
       throw error;
     }
   },
 
   // Supprimer une discussion
-  deleteDiscussion: async (id: string): Promise<boolean> => {
+  deleteDiscussion: async (topicId: string, discussionId: string): Promise<boolean> => {
     try {
-      await ApiService.delete<void>(`${API_CONFIG.ENDPOINTS.DISCUSSIONS}/${id}`);
+      await ApiService.delete<void>(`${API_CONFIG.ENDPOINTS.TOPICS}/${topicId}/discussions/${discussionId}`);
       return true;
     } catch (error) {
-      console.error(`Failed to delete discussion with id ${id}:`, error);
+      console.error(`Failed to delete discussion with id ${discussionId}:`, error);
       // Fallback aux données mockées en mode développement
       if (import.meta.env.MODE === 'development') {
         const { deleteDiscussion } = await import('@/utils/crudUtils');
-        return deleteDiscussion(id);
+        return deleteDiscussion(discussionId);
       }
       return false;
     }

@@ -35,45 +35,6 @@ export const UserService = {
     }
   },
 
-  // Récupérer l'utilisateur actuellement connecté
-  getCurrentUser: async (): Promise<User | null> => {
-    try {
-      return await ApiService.get<User>(`${API_CONFIG.ENDPOINTS.AUTH}/me`);
-    } catch (error) {
-      console.error('Failed to fetch current user:', error);
-      // Fallback aux données mockées en mode développement
-      if (import.meta.env.MODE === 'development') {
-        const { getCurrentUser } = await import('@/utils/crudUtils');
-        return getCurrentUser();
-      }
-      return null;
-    }
-  },
-
-  // Définir l'utilisateur actuellement connecté
-  setCurrentUser: async (userId: string | null): Promise<void> => {
-    if (userId) {
-      localStorage.setItem('currentUserId', userId);
-    } else {
-      localStorage.removeItem('currentUserId');
-    }
-  },
-
-  // Créer un nouvel utilisateur
-  createUser: async (user: Omit<User, "id" | "createdAt">): Promise<User> => {
-    try {
-      return await ApiService.post<User>(`${API_CONFIG.ENDPOINTS.AUTH}/register`, user);
-    } catch (error) {
-      console.error('Failed to create user:', error);
-      // Fallback aux données mockées en mode développement
-      if (import.meta.env.MODE === 'development') {
-        const { createUser } = await import('@/utils/crudUtils');
-        return createUser(user);
-      }
-      throw error;
-    }
-  },
-
   // Mettre à jour un utilisateur
   updateUser: async (id: string, updatedUser: Partial<User>): Promise<User | undefined> => {
     try {
@@ -105,37 +66,23 @@ export const UserService = {
     }
   },
 
-  // Connecter un utilisateur
-  login: async (email: string, password: string): Promise<{user: User, token: string}> => {
+  // Récupérer tous les enseignants
+  getTeachers: async (): Promise<User[]> => {
     try {
-      const response = await ApiService.post<{user: User, token: string}>(
-        `${API_CONFIG.ENDPOINTS.AUTH}/login`, 
-        { email, password }
-      );
-      
-      // Stocker le token dans le localStorage
-      localStorage.setItem('auth_token', response.token);
-      
-      // Définir l'utilisateur courant
-      UserService.setCurrentUser(response.user.id);
-      
-      return response;
+      return await ApiService.get<User[]>(`${API_CONFIG.ENDPOINTS.USERS}/teachers`);
     } catch (error) {
-      console.error('Failed to login:', error);
-      throw error;
+      console.error('Failed to fetch teachers:', error);
+      return [];
     }
   },
 
-  // Déconnecter un utilisateur
-  logout: async (): Promise<void> => {
+  // Récupérer tous les étudiants
+  getStudents: async (): Promise<User[]> => {
     try {
-      await ApiService.post<void>(`${API_CONFIG.ENDPOINTS.AUTH}/logout`, {});
+      return await ApiService.get<User[]>(`${API_CONFIG.ENDPOINTS.USERS}/students`);
     } catch (error) {
-      console.error('Failed to logout:', error);
-    } finally {
-      // Toujours supprimer le token et l'utilisateur courant
-      localStorage.removeItem('auth_token');
-      UserService.setCurrentUser(null);
+      console.error('Failed to fetch students:', error);
+      return [];
     }
   }
 };

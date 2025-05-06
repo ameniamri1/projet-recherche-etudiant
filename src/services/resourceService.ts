@@ -20,65 +20,45 @@ export const ResourceService = {
     }
   },
 
-  // Créer une nouvelle ressource
-  createResource: async (resource: Omit<Resource, "id" | "createdAt">, file?: File): Promise<Resource> => {
+  // Télécharger une ressource
+  downloadResource: async (resourceId: string): Promise<Blob> => {
     try {
-      if (file) {
-        // Créer un FormData pour l'upload du fichier
-        const formData = new FormData();
-        formData.append('file', file);
-        Object.entries(resource).forEach(([key, value]) => {
-          formData.append(key, String(value));
-        });
-        
-        // Configurer le client axios pour l'upload
-        const response = await ApiService.post<Resource>(
-          `${API_CONFIG.ENDPOINTS.TOPICS}/${resource.topicId}/resources`, 
-          formData
-        );
-        return response;
-      } else {
-        // Juste créer une ressource avec une URL externe
-        return await ApiService.post<Resource>(
-          `${API_CONFIG.ENDPOINTS.TOPICS}/${resource.topicId}/resources`, 
-          resource
-        );
-      }
+      const response = await ApiService.getWithBlob(`${API_CONFIG.ENDPOINTS.RESOURCES}/${resourceId}`);
+      return response;
     } catch (error) {
-      console.error('Failed to create resource:', error);
-      // Fallback aux données mockées en mode développement
-      if (import.meta.env.MODE === 'development') {
-        const { createResource } = await import('@/utils/crudUtils');
-        return createResource(resource);
-      }
+      console.error(`Failed to download resource with id ${resourceId}:`, error);
+      throw error;
+    }
+  },
+
+  // Téléverser une nouvelle ressource
+  uploadResource: async (topicId: string, file: File): Promise<Resource> => {
+    try {
+      // Utiliser la méthode uploadFile d'ApiService
+      const response = await ApiService.uploadFile<Resource>(
+        `${API_CONFIG.ENDPOINTS.TOPICS}/${topicId}/resources`,
+        file
+      );
+      return response;
+    } catch (error) {
+      console.error('Failed to upload resource:', error);
       throw error;
     }
   },
 
   // Supprimer une ressource
-  deleteResource: async (id: string): Promise<boolean> => {
+  deleteResource: async (resourceId: string): Promise<boolean> => {
     try {
-      await ApiService.delete<void>(`${API_CONFIG.ENDPOINTS.RESOURCES}/${id}`);
+      await ApiService.delete<void>(`${API_CONFIG.ENDPOINTS.RESOURCES}/${resourceId}`);
       return true;
     } catch (error) {
-      console.error(`Failed to delete resource with id ${id}:`, error);
+      console.error(`Failed to delete resource with id ${resourceId}:`, error);
       // Fallback aux données mockées en mode développement
       if (import.meta.env.MODE === 'development') {
         const { deleteResource } = await import('@/utils/crudUtils');
-        return deleteResource(id);
+        return deleteResource(resourceId);
       }
       return false;
-    }
-  },
-
-  // Télécharger une ressource
-  downloadResource: async (id: string): Promise<Blob> => {
-    try {
-      const response = await ApiService.getWithBlob(`${API_CONFIG.ENDPOINTS.RESOURCES}/${id}/download`);
-      return response;
-    } catch (error) {
-      console.error(`Failed to download resource with id ${id}:`, error);
-      throw error;
     }
   }
 };

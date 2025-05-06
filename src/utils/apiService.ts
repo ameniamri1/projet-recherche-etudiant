@@ -78,6 +78,26 @@ class ApiService {
     const response: AxiosResponse<T> = await this.api.delete(endpoint);
     return response.data;
   }
+
+  // Méthode pour uploader des fichiers
+  async uploadFile<T>(endpoint: string, file: File, additionalData?: Record<string, string>): Promise<T> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    if (additionalData) {
+      Object.entries(additionalData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+    }
+    
+    const response: AxiosResponse<T> = await this.api.post(endpoint, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    
+    return response.data;
+  }
 }
 
 export default new ApiService();
