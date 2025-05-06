@@ -9,7 +9,8 @@ export const API_CONFIG = {
     DISCUSSIONS: '/discussions',
     RESOURCES: '/resources',
     PROGRESS: '/progress',
-    AUTH: '/auth'
+    AUTH: '/auth',
+    CONVERSATIONS: '/conversations'  // Ajout de l'endpoint pour les conversations
   },
   TIMEOUT: 8000, // 8 secondes
 };
