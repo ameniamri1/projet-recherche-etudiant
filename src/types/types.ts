@@ -120,3 +120,37 @@ export interface ProgressRequest {
 export interface DiscussionRequest {
   message: string;
 }
+
+// Nouveaux types pour les messages
+export interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  text: string;
+  createdAt: string;
+}
+
+export interface Participant {
+  id: string;
+  name: string;
+  role: "ROLE_STUDENT" | "ROLE_TEACHER" | "ROLE_ADMIN";
+}
+
+export interface Conversation {
+  id: string;
+  participants: Participant[];
+  lastMessage: string;
+  lastMessageTime: string;
+  unreadCount: number;
+  topicId: string;
+  topicTitle: string;
+}
+
+export interface MessageRequest {
+  text: string;
+}
+
+export interface ConversationRequest {
+  topicId: string;
+  teacherId: string;
+}

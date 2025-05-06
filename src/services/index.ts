@@ -1,9 +1,20 @@
 
-// Exporter tous les services pour un accès plus facile
-export { default as TopicService } from './topicService';
-export { default as ApplicationService } from './applicationService';
-export { default as UserService } from './userService';
-export { default as DiscussionService } from './discussionService';
-export { default as ResourceService } from './resourceService';
-export { default as ProgressService } from './progressService';
-export { default as AuthService } from './authService';
+import { AuthService } from './authService';
+import { ApplicationService } from './applicationService';
+import { TopicService } from './topicService';
+import { UserService } from './userService';
+import { ResourceService } from './resourceService';
+import { ProgressService } from './progressService';
+import { DiscussionService } from './discussionService';
+import { MessageService } from './messageService';
+
+export {
+  AuthService,
+  ApplicationService,
+  TopicService,
+  UserService,
+  ResourceService,
+  ProgressService,
+  DiscussionService,
+  MessageService
+};

@@ -41,10 +41,11 @@ export const UserService = {
       return await ApiService.put<User>(`${API_CONFIG.ENDPOINTS.USERS}/${id}`, updatedUser);
     } catch (error) {
       console.error(`Failed to update user with id ${id}:`, error);
-      // Fallback aux données mockées en mode développement
+      // En mode développement, nous ne pouvons pas utiliser updateUser car il n'existe pas dans crudUtils
+      // Retournons simplement l'utilisateur mis à jour pour simuler
       if (import.meta.env.MODE === 'development') {
-        const { updateUser } = await import('@/utils/crudUtils');
-        return updateUser(id, updatedUser);
+        console.log('Development mode: simulating user update');
+        return { ...updatedUser, id } as User;
       }
       return undefined;
     }
@@ -57,10 +58,11 @@ export const UserService = {
       return true;
     } catch (error) {
       console.error(`Failed to delete user with id ${id}:`, error);
-      // Fallback aux données mockées en mode développement
+      // En mode développement, nous ne pouvons pas utiliser deleteUser car il n'existe pas dans crudUtils
+      // Retournons simplement true pour simuler la suppression
       if (import.meta.env.MODE === 'development') {
-        const { deleteUser } = await import('@/utils/crudUtils');
-        return deleteUser(id);
+        console.log('Development mode: simulating user deletion');
+        return true;
       }
       return false;
     }
